@@ -31,7 +31,10 @@ func (h *RankingHandler) GetCurrentRankings(c *gin.Context) {
 	if err := h.db.Where("status = ?", models.PollStatusPublished).
 		Order("publish_date DESC").
 		First(&pollWeek).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No published poll found"})
+		c.JSON(http.StatusOK, gin.H{
+			"pollWeek": nil,
+			"rankings": []interface{}{},
+		})
 		return
 	}
 

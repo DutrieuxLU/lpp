@@ -38,8 +38,16 @@ func (h *WeekHandler) GetWeeks(c *gin.Context) {
 	}
 
 	if err := query.Order("year DESC, week_number DESC").Find(&weeks).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusOK, []models.PollWeek{})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+
+	if weeks == nil {
+		weeks = []models.PollWeek{}
 	}
 
 	c.JSON(http.StatusOK, weeks)
