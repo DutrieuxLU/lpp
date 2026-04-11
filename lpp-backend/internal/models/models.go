@@ -65,6 +65,7 @@ type Voter struct {
 	Name      string         `gorm:"size:100;not null" json:"name"`
 	Outlet    string         `gorm:"size:100" json:"outlet"`
 	Email     string         `gorm:"size:255;not null;uniqueIndex" json:"email"`
+	Password  string         `gorm:"size:255" json:"-"`
 	Region    Region         `gorm:"size:10" json:"region"`
 	IsActive  bool           `gorm:"default:true" json:"isActive"`
 }

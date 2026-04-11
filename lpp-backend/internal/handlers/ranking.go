@@ -27,6 +27,8 @@ func NewRankingHandler(db *gorm.DB) *RankingHandler {
 }
 
 func (h *RankingHandler) GetCurrentRankings(c *gin.Context) {
+	region := c.Query("region")
+
 	var pollWeek models.PollWeek
 	if err := h.db.Where("status = ?", models.PollStatusPublished).
 		Order("publish_date DESC").
@@ -38,10 +40,21 @@ func (h *RankingHandler) GetCurrentRankings(c *gin.Context) {
 		return
 	}
 
+	query := h.db.Where("poll_week_id = ?", pollWeek.ID)
+
+	if region != "" && region != "global" {
+		regionModel := models.Region(region)
+		var teamIDs []uint
+		h.db.Model(&models.Team{}).Where("region = ?", regionModel).Pluck("id", &teamIDs)
+		if len(teamIDs) > 0 {
+			query = query.Where("team_id IN ?", teamIDs).Order("points DESC").Limit(5)
+		}
+	} else {
+		query = query.Order("rank ASC").Limit(15)
+	}
+
 	var rankings []models.Ranking
-	if err := h.db.Where("poll_week_id = ?", pollWeek.ID).
-		Order("rank ASC").
-		Find(&rankings).Error; err != nil {
+	if err := query.Find(&rankings).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

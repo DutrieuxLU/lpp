@@ -19,8 +19,9 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
   return res.json();
 }
 
-export async function getCurrentRankings(): Promise<RankingsResponse> {
-  return fetchAPI<RankingsResponse>("/rankings/current");
+export async function getCurrentRankings(region?: string): Promise<RankingsResponse> {
+  const query = region && region !== "global" ? `?region=${region}` : "";
+  return fetchAPI<RankingsResponse>(`/rankings/current${query}`);
 }
 
 export async function getWeekRankings(weekId: number): Promise<RankingsResponse> {
@@ -55,5 +56,22 @@ export async function calculateRankings(pollWeekId: number): Promise<Ranking[]> 
   return fetchAPI<Ranking[]>("/rankings/calculate", {
     method: "POST",
     body: JSON.stringify({ pollWeekId }),
+  });
+}
+
+export interface LoginResponse {
+  voter: {
+    id: number;
+    name: string;
+    email: string;
+    region: string;
+  };
+  token: string;
+}
+
+export async function login(email: string, password: string): Promise<LoginResponse> {
+  return fetchAPI<LoginResponse>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
   });
 }
