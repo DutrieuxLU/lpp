@@ -28,12 +28,34 @@ The Go backend is being built with:
 - GORM for PostgreSQL ORM
 - Models for: Team, PollWeek, Voter, Vote, Ranking, Match
 
+## External APIs
+
+### LOLesports API (Team Data)
+
+Used for fetching official team names, codes, logos, and league affiliations.
+
+**Base URL**: `https://esports-api.lolesports.com/persisted/gw/getTeams`  
+**Alternative**: `https://prod-relapi.ewp.gg/persisted/gw/getTeams`  
+**API Key** (public): `0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z`  
+**Headers**: `x-api-key: 0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z`  
+**Query Params**: `hl=en-US` (locale)
+
+**Response Fields**:
+- `id` - External team ID
+- `slug` - URL-friendly team identifier
+- `name` - Official team name
+- `code` - 3-letter team code
+- `image` - Team logo URL
+- `homeLeague.name` - League (LCK, LCS, LEC, LPL, etc.)
+- `homeLeague.region` - Region code
+
 ## Pending Tasks
 
 1. Install Go dependencies (gin, gorm, postgres driver)
 2. Create HTTP handlers for API endpoints
 3. Create services for ranking calculation
 4. Create initial Go module with dependencies
+5. **Create service to sync teams from LOLesports API**
 
 ## Running the Application
 
