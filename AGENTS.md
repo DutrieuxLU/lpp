@@ -23,10 +23,13 @@ LPP is an AP Poll-style human-voted ranking system for professional League of Le
 
 ## Current Status
 
-The Go backend is being built with:
-- Gin framework for HTTP routing
-- GORM for PostgreSQL ORM
-- Models for: Team, PollWeek, Voter, Vote, Ranking, Match
+The app is running with:
+- Go/Gin backend on port 8080
+- Next.js frontend on port 3000
+- 206 teams synced from LOLesports API
+- Rankings with team logos
+
+**Allowed Regions**: LEC, LCS, LCK, LPL, LCP (PCS), CBLOL
 
 ## External APIs
 
@@ -89,6 +92,6 @@ Set these before running:
 ## Important Notes for This Project
 
 - This is a real project, not a portfolio piece
-- All regions (LCS, LEC, LCK, LPL, CBLOL, LLA) should be supported from the start
+- **Allowed Regions**: LEC, LCS, LCK, LPL, LCP (PCS), CBLOL - only these 6 regions
 - The voting system is the core feature - keep it simple but functional
 - Start as basic as possible, iterate later
