@@ -20,3 +20,420 @@
  GET / 200 in 27ms (next.js: 1987µs, application-code: 25ms)
  GET / 200 in 28ms (next.js: 2ms, application-code: 25ms)
  GET /admin 200 in 386ms (next.js: 346ms, application-code: 40ms)
+ GET / 200 in 33ms (next.js: 6ms, application-code: 28ms)
+ GET / 200 in 28ms (next.js: 3ms, application-code: 26ms)
+ GET / 200 in 23ms (next.js: 1792µs, application-code: 21ms)
+ GET /admin 200 in 30ms (next.js: 3ms, application-code: 27ms)
+ GET / 200 in 26ms (next.js: 1841µs, application-code: 24ms)
+✓ Compiled in 114ms
+[browser] ./src/app/page.tsx:195:65
+Expected '</', got ')'
+  193 | ...
+  194 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 195 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  196 | ...iv>
+  197 | ...
+  198 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component] 
+[browser] ./src/app/page.tsx:195:65
+Expected '</', got ')'
+  193 | ...
+  194 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 195 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  196 | ...iv>
+  197 | ...
+  198 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component] 
+[browser] ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  194 | ...
+  195 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 196 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  197 | ...iv>
+  198 | ...
+  199 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component] 
+⨯ ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  [90m194 |[0m ...
+  [90m195 |[0m ...v className=[32m"w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...[0m
+[31m[1m>[0m [90m196 |[0m ...ranking.team.shortName?.slice([35m0[0m, [35m2[0m) || [32m"??"[0m)}
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m197 |[0m ...iv>
+  [90m198 |[0m ...
+  [90m199 |[0m ...className=[32m"flex-1"[0m>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+[browser] ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  194 | ...
+  195 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 196 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  197 | ...iv>
+  198 | ...
+  199 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component] 
+[browser] ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  194 | ...
+  195 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 196 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  197 | ...iv>
+  198 | ...
+  199 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component] 
+[browser] ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  194 | ...
+  195 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 196 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  197 | ...iv>
+  198 | ...
+  199 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component] 
+ GET / 500 in 637ms (next.js: 547ms, application-code: 90ms)
+⨯ ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  [90m194 |[0m ...
+  [90m195 |[0m ...v className=[32m"w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...[0m
+[31m[1m>[0m [90m196 |[0m ...ranking.team.shortName?.slice([35m0[0m, [35m2[0m) || [32m"??"[0m)}
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m197 |[0m ...iv>
+  [90m198 |[0m ...
+  [90m199 |[0m ...className=[32m"flex-1"[0m>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 12ms (next.js: 6ms, application-code: 6ms)
+[browser] ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  194 | ...
+  195 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 196 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  197 | ...iv>
+  198 | ...
+  199 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component] 
+⨯ ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  [90m194 |[0m ...
+  [90m195 |[0m ...v className=[32m"w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...[0m
+[31m[1m>[0m [90m196 |[0m ...ranking.team.shortName?.slice([35m0[0m, [35m2[0m) || [32m"??"[0m)}
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m197 |[0m ...iv>
+  [90m198 |[0m ...
+  [90m199 |[0m ...className=[32m"flex-1"[0m>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 8ms (next.js: 4ms, application-code: 5ms)
+[browser] Uncaught Error: ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  194 | ...
+  195 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 196 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  197 | ...iv>
+  198 | ...
+  199 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./src/app/page.tsx:196:65)
+    at <unknown> (Error: (./src/app/page.tsx:196:65)
+[browser] ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  194 | ...
+  195 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 196 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  197 | ...iv>
+  198 | ...
+  199 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component] 
+[browser] ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  194 | ...
+  195 | ...v className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...
+> 196 | ...ranking.team.shortName?.slice(0, 2) || "??")}
+      |                                               ^
+  197 | ...iv>
+  198 | ...
+  199 | ...className="flex-1">
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component] 
+⨯ ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  [90m194 |[0m ...
+  [90m195 |[0m ...v className=[32m"w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...[0m
+[31m[1m>[0m [90m196 |[0m ...ranking.team.shortName?.slice([35m0[0m, [35m2[0m) || [32m"??"[0m)}
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m197 |[0m ...iv>
+  [90m198 |[0m ...
+  [90m199 |[0m ...className=[32m"flex-1"[0m>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 12ms (next.js: 5ms, application-code: 8ms)
+⨯ ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  [90m194 |[0m ...
+  [90m195 |[0m ...v className=[32m"w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...[0m
+[31m[1m>[0m [90m196 |[0m ...ranking.team.shortName?.slice([35m0[0m, [35m2[0m) || [32m"??"[0m)}
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m197 |[0m ...iv>
+  [90m198 |[0m ...
+  [90m199 |[0m ...className=[32m"flex-1"[0m>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 10ms (next.js: 4ms, application-code: 6ms)
+⨯ ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  [90m194 |[0m ...
+  [90m195 |[0m ...v className=[32m"w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...[0m
+[31m[1m>[0m [90m196 |[0m ...ranking.team.shortName?.slice([35m0[0m, [35m2[0m) || [32m"??"[0m)}
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m197 |[0m ...iv>
+  [90m198 |[0m ...
+  [90m199 |[0m ...className=[32m"flex-1"[0m>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 11ms (next.js: 5ms, application-code: 6ms)
+⨯ ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  [90m194 |[0m ...
+  [90m195 |[0m ...v className=[32m"w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...[0m
+[31m[1m>[0m [90m196 |[0m ...ranking.team.shortName?.slice([35m0[0m, [35m2[0m) || [32m"??"[0m)}
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m197 |[0m ...iv>
+  [90m198 |[0m ...
+  [90m199 |[0m ...className=[32m"flex-1"[0m>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 10ms (next.js: 3ms, application-code: 7ms)
+⨯ ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  [90m194 |[0m ...
+  [90m195 |[0m ...v className=[32m"w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...[0m
+[31m[1m>[0m [90m196 |[0m ...ranking.team.shortName?.slice([35m0[0m, [35m2[0m) || [32m"??"[0m)}
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m197 |[0m ...iv>
+  [90m198 |[0m ...
+  [90m199 |[0m ...className=[32m"flex-1"[0m>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 12ms (next.js: 5ms, application-code: 8ms)
+⨯ ./src/app/page.tsx:196:65
+Expected '</', got ')'
+  [90m194 |[0m ...
+  [90m195 |[0m ...v className=[32m"w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-...[0m
+[31m[1m>[0m [90m196 |[0m ...ranking.team.shortName?.slice([35m0[0m, [35m2[0m) || [32m"??"[0m)}
+  [90m    |[0m                                               [31m[1m^[0m
+  [90m197 |[0m ...iv>
+  [90m198 |[0m ...
+  [90m199 |[0m ...className=[32m"flex-1"[0m>
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 9ms (next.js: 3ms, application-code: 6ms)

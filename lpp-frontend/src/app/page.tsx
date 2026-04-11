@@ -10,7 +10,8 @@ const REGIONS = [
   { value: "LPL", label: "LPL (China)" },
   { value: "LEC", label: "LEC (Europe)" },
   { value: "LCS", label: "LCS (North America)" },
-  { value: "PCS", label: "LCP (Pacific)" },
+  { value: "CBLOL", label: "CBLOL (Brazil)" },
+  { value: "LLA", label: "LLA (Latin America)" },
 ];
 
 export default function Home() {
@@ -184,6 +185,17 @@ export default function Home() {
                 <span className="text-2xl font-bold w-12 text-zinc-500">
                   #{ranking.rank}
                 </span>
+                {ranking.team.logo ? (
+                  <img
+                    src={ranking.team.logo}
+                    alt={ranking.team.name}
+                    className="w-12 h-12 rounded-full object-contain bg-zinc-800"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-500 font-bold text-lg">
+                    {ranking.team.shortName?.slice(0, 2) || "??")}
+                  </div>
+                )}
                 <div className="flex-1">
                   <div className="font-semibold text-lg">{ranking.team.name}</div>
                   <div className="text-sm text-zinc-500">{ranking.team.region}</div>
