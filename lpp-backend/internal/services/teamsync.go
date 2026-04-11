@@ -127,12 +127,10 @@ func (s *TeamSyncService) mapLeagueToRegion(league string) models.Region {
 		return models.RegionLPL
 	case "CBLOL":
 		return models.RegionCBLOL
-	case "LLA":
-		return models.RegionLLA
 	case "PCS", "LCP":
 		return models.RegionPCS
-	case "VCS":
-		return models.RegionVCS
+	case "LLA", "VCS":
+		return ""
 	default:
 		return ""
 	}

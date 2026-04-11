@@ -10,8 +10,8 @@ const REGIONS = [
   { value: "LPL", label: "LPL (China)" },
   { value: "LEC", label: "LEC (Europe)" },
   { value: "LCS", label: "LCS (North America)" },
+  { value: "LCP", label: "LCP (Pacific)" },
   { value: "CBLOL", label: "CBLOL (Brazil)" },
-  { value: "LLA", label: "LLA (Latin America)" },
 ];
 
 export default function Home() {
