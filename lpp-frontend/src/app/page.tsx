@@ -193,7 +193,7 @@ export default function Home() {
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-500 font-bold text-lg">
-                    {ranking.team.shortName?.slice(0, 2) || "??")}
+                    {ranking.team.shortName ? ranking.team.shortName.slice(0, 2) : "??"}
                   </div>
                 )}
                 <div className="flex-1">
