@@ -62,40 +62,48 @@ export default function Home() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold">
-            Week {data.pollWeek.weekNumber} Rankings
-          </h2>
-          <p className="text-zinc-400">
-            {data.pollWeek.split} {data.pollWeek.year}
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          {data.rankings.map((ranking) => (
-            <div
-              key={ranking.rank}
-              className="flex items-center gap-4 p-4 bg-zinc-900/50 rounded-lg border border-zinc-800"
-            >
-              <span className="text-2xl font-bold w-12 text-zinc-500">
-                #{ranking.rank}
-              </span>
-              <div className="flex-1">
-                <div className="font-semibold text-lg">{ranking.team.name}</div>
-                <div className="text-sm text-zinc-500">{ranking.team.region}</div>
-              </div>
-              <div className="text-right">
-                <div className="text-xl font-bold">{ranking.points}</div>
-                <div className="text-xs text-zinc-500">points</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {data.rankings.length === 0 && (
+        {!data.pollWeek ? (
           <div className="text-center py-12 text-zinc-500">
             No rankings published yet
           </div>
+        ) : (
+          <>
+            <div className="mb-8">
+              <h2 className="text-2xl font-semibold">
+                Week {data.pollWeek.weekNumber} Rankings
+              </h2>
+              <p className="text-zinc-400">
+                {data.pollWeek.split} {data.pollWeek.year}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              {data.rankings.map((ranking) => (
+                <div
+                  key={ranking.rank}
+                  className="flex items-center gap-4 p-4 bg-zinc-900/50 rounded-lg border border-zinc-800"
+                >
+                  <span className="text-2xl font-bold w-12 text-zinc-500">
+                    #{ranking.rank}
+                  </span>
+                  <div className="flex-1">
+                    <div className="font-semibold text-lg">{ranking.team.name}</div>
+                    <div className="text-sm text-zinc-500">{ranking.team.region}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl font-bold">{ranking.points}</div>
+                    <div className="text-xs text-zinc-500">points</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {data.rankings.length === 0 && (
+              <div className="text-center py-12 text-zinc-500">
+                No rankings published yet
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
