@@ -123,7 +123,7 @@ export default function Home() {
           <div className="text-center py-12 text-zinc-500">
             No rankings published yet
           </div>
-        ) : data.rankings.length === 0 ? (
+        ) : !data?.rankings || data.rankings.length === 0 ? (
           <div className="text-center py-12 text-zinc-500">
             No rankings for this region
           </div>
