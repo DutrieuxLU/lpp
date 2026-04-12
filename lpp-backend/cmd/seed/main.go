@@ -124,16 +124,28 @@ func seedData(db *gorm.DB) {
 	}
 	log.Printf("Seeded %d rankings", len(rankings))
 
-	voter := models.Voter{
-		Name:     "Test Voter",
-		Outlet:   "Test Outlet",
-		Email:    "voter@lpp.com",
-		Password: "password123",
-		Region:   models.RegionLCS,
-		IsActive: true,
+	voters := []models.Voter{
+		{
+			Name:     "Test Voter",
+			Outlet:   "Test Outlet",
+			Email:    "voter@lpp.com",
+			Password: "password123",
+			Region:   models.RegionLCS,
+			IsActive: true,
+		},
+		{
+			Name:     "Laurent Dutrieux",
+			Outlet:   "LPP",
+			Email:    "dutrieuxl31022@gmail.com",
+			Password: "Cubs2016@",
+			Region:   models.RegionLEC,
+			IsActive: true,
+		},
 	}
-	if err := db.Create(&voter).Error; err != nil {
-		log.Fatalf("Failed to create voter: %v", err)
+	if err := db.Create(&voters).Error; err != nil {
+		log.Fatalf("Failed to create voters: %v", err)
 	}
-	log.Printf("Created voter: %s (password: password123)", voter.Email)
+	for _, v := range voters {
+		log.Printf("Created voter: %s", v.Email)
+	}
 }

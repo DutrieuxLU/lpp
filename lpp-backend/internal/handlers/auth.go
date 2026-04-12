@@ -39,7 +39,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	if req.Password != "password123" {
+	if voter.Password == "" || req.Password != voter.Password {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
