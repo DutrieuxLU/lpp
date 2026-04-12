@@ -46,89 +46,100 @@ export default function ApplyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#010A13] text-[#F0E6D2] flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold">Apply to Vote</h1>
-          <p className="text-zinc-400 mt-2">
+          <div className="inline-block border-b-2 border-[#C8AA6E] pb-1 mb-2">
+            <h1 className="text-3xl font-bold font-serif tracking-wide">Apply to Vote</h1>
+          </div>
+          <p className="text-[#A8B4BE] mt-2 text-sm">
             Join the LPP panel as a pollster
           </p>
         </div>
 
         {message && (
-          <div className={`mb-6 p-4 rounded-lg ${message.includes("success") ? "bg-green-900/50 text-green-400" : "bg-red-900/50 text-red-400"}`}>
+          <div className={`mb-6 p-4 text-sm border ${
+            message.includes("success") 
+              ? "bg-[#43B581]/10 text-[#43B581] border-[#43B581]/30" 
+              : "bg-[#E84057]/10 text-[#E84057] border-[#E84057]/30"
+          }`}>
             {message}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">Name *</label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100"
-              required
-            />
-          </div>
+        <div className="border border-[#1E2328] bg-[#091220]/50 p-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm text-[#A8B4BE] mb-2">Name *</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="w-full p-3 bg-[#010A13] border border-[#1E2328] text-[#F0E6D2] text-sm focus:border-[#C8AA6E]"
+                required
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">Email *</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100"
-              required
-            />
-          </div>
+            <div>
+              <label className="block text-sm text-[#A8B4BE] mb-2">Email *</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="w-full p-3 bg-[#010A13] border border-[#1E2328] text-[#F0E6D2] text-sm focus:border-[#C8AA6E]"
+                required
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">Outlet / Organization</label>
-            <input
-              type="text"
-              value={form.outlet}
-              onChange={(e) => setForm({ ...form, outlet: e.target.value })}
-              className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100"
-            />
-          </div>
+            <div>
+              <label className="block text-sm text-[#A8B4BE] mb-2">Outlet / Organization</label>
+              <input
+                type="text"
+                value={form.outlet}
+                onChange={(e) => setForm({ ...form, outlet: e.target.value })}
+                className="w-full p-3 bg-[#010A13] border border-[#1E2328] text-[#F0E6D2] text-sm focus:border-[#C8AA6E]"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">Region Coverage</label>
-            <select
-              value={form.region}
-              onChange={(e) => setForm({ ...form, region: e.target.value })}
-              className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100"
+            <div>
+              <label className="block text-sm text-[#A8B4BE] mb-2">Region Coverage</label>
+              <select
+                value={form.region}
+                onChange={(e) => setForm({ ...form, region: e.target.value })}
+                className="w-full p-3 bg-[#010A13] border border-[#1E2328] text-[#F0E6D2] text-sm focus:border-[#C8AA6E] cursor-pointer"
+              >
+                <option value="" className="bg-[#010A13]">Select region...</option>
+                {REGIONS.map((r) => (
+                  <option key={r.value} value={r.value} className="bg-[#010A13]">{r.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-[#A8B4BE] mb-2">Experience / Notes</label>
+              <textarea
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                className="w-full p-3 bg-[#010A13] border border-[#1E2328] text-[#F0E6D2] text-sm focus:border-[#C8AA6E] h-28 resize-none"
+                placeholder="Tell us about your experience covering LoL esports..."
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-[#C8AA6E] text-[#010A13] hover:bg-[#F0E6D2] disabled:bg-[#1E2328] disabled:text-[#786E4D] font-semibold text-sm tracking-wide"
             >
-              <option value="">Select region...</option>
-              {REGIONS.map((r) => (
-                <option key={r.value} value={r.value}>{r.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">Experience / Notes</label>
-            <textarea
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100 h-32"
-              placeholder="Tell us about your experience covering LoL esports..."
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 rounded-lg font-medium"
-          >
-            {loading ? "Submitting..." : "Apply"}
-          </button>
-        </form>
+              {loading ? "Submitting..." : "Submit Application"}
+            </button>
+          </form>
+        </div>
 
         <div className="mt-6 text-center">
-          <a href="/" className="text-zinc-500 hover:text-zinc-400 text-sm">
+          <a 
+            href="/" 
+            className="text-[#786E4D] hover:text-[#C8AA6E] text-sm border-b border-transparent hover:border-[#C8AA6E]"
+          >
             Back to Rankings
           </a>
         </div>

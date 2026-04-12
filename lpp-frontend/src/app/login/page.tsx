@@ -28,55 +28,62 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center">
-      <div className="w-full max-w-md p-8">
+    <div className="min-h-screen bg-[#010A13] text-[#F0E6D2] flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold">LPP</h1>
-          <p className="text-zinc-400 mt-1">League Press Poll</p>
+          <div className="inline-block border-b-2 border-[#C8AA6E] pb-1 mb-2">
+            <h1 className="text-3xl font-bold font-serif tracking-wide">LPP</h1>
+          </div>
+          <p className="text-[#A8B4BE] text-sm">League Press Poll</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 bg-red-900/50 text-red-400 rounded-lg text-sm">
-              {error}
+        <div className="border border-[#1E2328] bg-[#091220]/50 p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 bg-[#E84057]/10 text-[#E84057] text-sm border border-[#E84057]/30">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm text-[#A8B4BE] mb-2">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 bg-[#010A13] border border-[#1E2328] text-[#F0E6D2] text-sm focus:border-[#C8AA6E]"
+                placeholder="voter@lpp.com"
+                required
+              />
             </div>
-          )}
 
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100"
-              placeholder="voter@lpp.com"
-              required
-            />
-          </div>
+            <div>
+              <label className="block text-sm text-[#A8B4BE] mb-2">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 bg-[#010A13] border border-[#1E2328] text-[#F0E6D2] text-sm focus:border-[#C8AA6E]"
+                placeholder="Enter password"
+                required
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100"
-              placeholder="password"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 rounded-lg font-medium"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-[#C8AA6E] text-[#010A13] hover:bg-[#F0E6D2] disabled:bg-[#1E2328] disabled:text-[#786E4D] font-semibold text-sm tracking-wide"
+            >
+              {loading ? "Authenticating..." : "Sign In"}
+            </button>
+          </form>
+        </div>
 
         <div className="mt-6 text-center">
-          <a href="/" className="text-zinc-500 hover:text-zinc-400 text-sm">
+          <a 
+            href="/" 
+            className="text-[#786E4D] hover:text-[#C8AA6E] text-sm border-b border-transparent hover:border-[#C8AA6E]"
+          >
             Back to Rankings
           </a>
         </div>
