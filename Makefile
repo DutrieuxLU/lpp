@@ -1,4 +1,4 @@
-.PHONY: all up down help install install-fe install-be dev
+.PHONY: all up down help install install-fe install-be dev seed
 
 help:
 	@echo "Available targets:"
@@ -9,6 +9,7 @@ help:
 	@echo "  install-fe - Install frontend dependencies"
 	@echo "  install-be - Install backend dependencies"
 	@echo "  dev        - Start development mode (both services)"
+	@echo "  seed       - Seed the database with initial data"
 
 install: install-fe install-be
 
@@ -20,11 +21,17 @@ install-be:
 
 all: install up
 
+seed:
+	@echo "Seeding database..."
+	cd lpp-backend && go run cmd/seed/main.go
+
 up:
-	@echo "Starting frontend..."
-	cd lpp-frontend && npm run dev &
 	@echo "Starting backend..."
 	cd lpp-backend && go run main.go &
+	@echo "Waiting for backend to be ready..."
+	@sleep 3
+	@echo "Starting frontend..."
+	cd lpp-frontend && npm run dev &
 	@echo "Both services started!"
 
 down:
