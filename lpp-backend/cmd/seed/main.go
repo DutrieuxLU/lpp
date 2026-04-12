@@ -7,6 +7,7 @@ import (
 	"lpp-backend/internal/config"
 	"lpp-backend/internal/db"
 	"lpp-backend/internal/models"
+	"lpp-backend/internal/services"
 
 	"gorm.io/gorm"
 )
@@ -26,68 +27,25 @@ func seedData(db *gorm.DB) {
 	db.Exec("DELETE FROM rankings")
 	db.Exec("DELETE FROM votes")
 	db.Exec("DELETE FROM poll_weeks")
-	db.Exec("DELETE FROM teams")
 	db.Exec("DELETE FROM voters")
 
-	teams := []models.Team{
-		// LCK (Korean)
-		{Name: "Gen.G", ShortName: "GEN", Region: models.RegionLCK, Logo: ""},
-		{Name: "T1", ShortName: "T1", Region: models.RegionLCK, Logo: ""},
-		{Name: "Hanwha Life Esports", ShortName: "HLE", Region: models.RegionLCK, Logo: ""},
-		{Name: "DRX", ShortName: "DRX", Region: models.RegionLCK, Logo: ""},
-		{Name: "Dplus KIA", ShortName: "DK", Region: models.RegionLCK, Logo: ""},
-		{Name: "Freecs", ShortName: "KDF", Region: models.RegionLCK, Logo: ""},
-		{Name: "Nongshim RedForce", ShortName: "NS", Region: models.RegionLCK, Logo: ""},
-		{Name: "Liiv SANDBOX", ShortName: "LSB", Region: models.RegionLCK, Logo: ""},
-
-		// LPL (Chinese)
-		{Name: "Bilibili Gaming", ShortName: "BLG", Region: models.RegionLPL, Logo: ""},
-		{Name: "JD Gaming", ShortName: "JDG", Region: models.RegionLPL, Logo: ""},
-		{Name: "Top Esports", ShortName: "TES", Region: models.RegionLPL, Logo: ""},
-		{Name: "Edward Gaming", ShortName: "EDG", Region: models.RegionLPL, Logo: ""},
-		{Name: "LNG Esports", ShortName: "LNG", Region: models.RegionLPL, Logo: ""},
-		{Name: "Weibo Gaming", ShortName: "WBG", Region: models.RegionLPL, Logo: ""},
-		{Name: "Royal Never Give Up", ShortName: "RNG", Region: models.RegionLPL, Logo: ""},
-		{Name: "Team WE", ShortName: "WE", Region: models.RegionLPL, Logo: ""},
-
-		// LEC (European)
-		{Name: "G2 Esports", ShortName: "G2", Region: models.RegionLEC, Logo: ""},
-		{Name: "Fnatic", ShortName: "FNC", Region: models.RegionLEC, Logo: ""},
-		{Name: "MAD Lions", ShortName: "MAD", Region: models.RegionLEC, Logo: ""},
-		{Name: "Team BDS", ShortName: "BDS", Region: models.RegionLEC, Logo: ""},
-		{Name: "Rogue", ShortName: "RGE", Region: models.RegionLEC, Logo: ""},
-		{Name: "Excel Esports", ShortName: "XL", Region: models.RegionLEC, Logo: ""},
-		{Name: "SK Gaming", ShortName: "SK", Region: models.RegionLEC, Logo: ""},
-		{Name: "Team Heretics", ShortName: "TH", Region: models.RegionLEC, Logo: ""},
-
-		// LCS (North American)
-		{Name: "Team Liquid", ShortName: "TL", Region: models.RegionLCS, Logo: ""},
-		{Name: "Cloud9", ShortName: "C9", Region: models.RegionLCS, Logo: ""},
-		{Name: "100 Thieves", ShortName: "100T", Region: models.RegionLCS, Logo: ""},
-		{Name: "Evil Geniuses", ShortName: "EG", Region: models.RegionLCS, Logo: ""},
-		{Name: "FlyQuest", ShortName: "FLY", Region: models.RegionLCS, Logo: ""},
-		{Name: "NRG Esports", ShortName: "NRG", Region: models.RegionLCS, Logo: ""},
-		{Name: "Shopify Rebellion", ShortName: "SBR", Region: models.RegionLCS, Logo: ""},
-		{Name: "Immortals", ShortName: "IMT", Region: models.RegionLCS, Logo: ""},
-
-		// PCS (Pacific - shown as LCP)
-		{Name: "PSG Talon", ShortName: "PSG", Region: models.RegionPCS, Logo: ""},
-		{Name: "Flyquest", ShortName: "FYQ", Region: models.RegionPCS, Logo: ""},
-		{Name: "Bin", ShortName: "BIN", Region: models.RegionPCS, Logo: ""},
-		{Name: "CTBC Flying", ShortName: "CFO", Region: models.RegionPCS, Logo: ""},
-		{Name: "Talon Esports", ShortName: "TLN", Region: models.RegionPCS, Logo: ""},
-		{Name: "Team Secret", ShortName: "SEC", Region: models.RegionPCS, Logo: ""},
+	var teamCount int64
+	db.Model(&models.Team{}).Count(&teamCount)
+	if teamCount < 10 {
+		log.Println("Syncing teams from external API first...")
+		svc := services.NewTeamSyncService(db)
+		svc.SyncTeams()
 	}
 
-	if err := db.Create(&teams).Error; err != nil {
-		log.Fatalf("Failed to seed teams: %v", err)
-	}
-	log.Printf("Seeded %d teams", len(teams))
-
-	teamMap := make(map[string]uint)
+	var teams []models.Team
+	db.Where("logo != '' AND logo IS NOT NULL").Find(&teams)
+	teamMapByName := make(map[string]uint)
+	teamMapByShort := make(map[string]uint)
 	for _, t := range teams {
-		teamMap[t.Name] = t.ID
+		teamMapByName[t.Name] = t.ID
+		teamMapByShort[t.ShortName] = t.ID
 	}
+	log.Printf("Using %d teams with logos", len(teams))
 
 	pollWeek := models.PollWeek{
 		Year:        2026,
@@ -101,22 +59,43 @@ func seedData(db *gorm.DB) {
 	}
 	log.Printf("Created poll week: Week %d %s %d", pollWeek.WeekNumber, pollWeek.Split, pollWeek.Year)
 
-	rankings := []models.Ranking{
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["Bilibili Gaming"], Rank: 1, Points: 18, FirstPlaceVotes: 3},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["Gen.G"], Rank: 2, Points: 16, FirstPlaceVotes: 2},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["T1"], Rank: 3, Points: 14, FirstPlaceVotes: 1},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["JD Gaming"], Rank: 4, Points: 12, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["G2 Esports"], Rank: 5, Points: 11, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["Top Esports"], Rank: 6, Points: 10, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["Fnatic"], Rank: 7, Points: 9, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["Team Liquid"], Rank: 8, Points: 8, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["Cloud9"], Rank: 9, Points: 7, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["Hanwha Life Esports"], Rank: 10, Points: 6, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["Edward Gaming"], Rank: 11, Points: 5, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["MAD Lions"], Rank: 12, Points: 4, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["100 Thieves"], Rank: 13, Points: 3, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["PSG Talon"], Rank: 14, Points: 2, FirstPlaceVotes: 0},
-		{PollWeekID: pollWeek.ID, TeamID: teamMap["DRX"], Rank: 15, Points: 1, FirstPlaceVotes: 0},
+	// Use short names that match the synced API data
+	rankingsData := []struct {
+		shortName string
+		points    int
+		fpv       int
+	}{
+		{"BLG", 18, 3}, // Bilibili Gaming
+		{"GEN", 16, 2}, // Gen.G
+		{"T1", 14, 1},
+		{"JDG", 12, 0},
+		{"G2", 11, 0},
+		{"TES", 10, 0},
+		{"FNC", 9, 0},
+		{"TL", 8, 0},
+		{"C9", 7, 0},
+		{"HLE", 6, 0},
+		{"EDG", 5, 0},
+		{"MAD", 4, 0},
+		{"100T", 3, 0},
+		{"PSG", 2, 0},
+		{"DRX", 1, 0},
+	}
+
+	var rankings []models.Ranking
+	for i, r := range rankingsData {
+		teamID := teamMapByShort[r.shortName]
+		if teamID == 0 {
+			log.Printf("Warning: team %s not found in DB, skipping", r.shortName)
+			continue
+		}
+		rankings = append(rankings, models.Ranking{
+			PollWeekID:      pollWeek.ID,
+			TeamID:          teamID,
+			Rank:            i + 1,
+			Points:          r.points,
+			FirstPlaceVotes: r.fpv,
+		})
 	}
 
 	if err := db.Create(&rankings).Error; err != nil {
