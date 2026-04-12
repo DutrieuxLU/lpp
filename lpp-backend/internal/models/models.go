@@ -27,19 +27,6 @@ const (
 	RoleGeneral  Role = "general"
 )
 
-type Region string
-
-const (
-	RegionLCS   Region = "LCS"
-	RegionLEC   Region = "LEC"
-	RegionLCK   Region = "LCK"
-	RegionLPL   Region = "LPL"
-	RegionCBLOL Region = "CBLOL"
-	RegionLLA   Region = "LLA"
-	RegionPCS   Region = "PCS"
-	RegionVCS   Region = "VCS"
-)
-
 type Split string
 
 const (
