@@ -13,6 +13,12 @@ help:
 
 install: install-fe install-be
 
+start:
+	opencode -s ses_27cad670bffeP9xO0LrTBkcZTi
+push:
+	git add .
+	git commit -m "additions"
+	git push
 install-fe:
 	cd lpp-frontend && npm install
 
