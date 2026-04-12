@@ -14,22 +14,22 @@ LPP (League Press Poll) is a weekly human-voted ranking of professional League o
 
 ## Our Solution
 
-A panel of esports journalists and analysts vote weekly, ranking their top 25 teams. Points are awarded 25-1 (1st place = 25 points, 25th = 1 point), and the aggregated results form the official LPP Top 25.
+A panel of esports journalists and analysts vote weekly, ranking their top 15 teams. Points are awarded 15-1 (1st place = 15 points, 15th = 1 point), and the aggregated results form the official LPP Top 15.
 
 ## Features
 
-- **Weekly Rankings**: Published after major region matches each week
-- **All Regions**: LCS, LEC, LCK, LPL, CBLOL, LLA coverage
-- **Historical Archive**: Browse past rankings by year and split
-- **Transparent Process**: Public ballots (future phase)
-- **External Data Integration**: Uses Cito API for match data
+- **Weekly Rankings**: Top 15 published after major region matches each week
+- **All Regions**: LEC, LCS, LCK, LPL, LCP (PCS), CBLOL coverage
+- **Team Sync**: Automatic sync from LOLesports API with team logos
+- **Role-Based Access**: admin/pollster/general roles
+- **Application System**: Public form to apply to become a pollster
 
 ## Tech Stack
 
 - **Backend**: Go with Gin framework
 - **Database**: PostgreSQL with GORM
-- **External Data**: Cito API
-- **Frontend**: Coming soon
+- **External Data**: LOLesports API
+- **Frontend**: Next.js with TypeScript
 
 ## Project Structure
 

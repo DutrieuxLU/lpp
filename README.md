@@ -6,22 +6,24 @@ An AP Poll-style human-voted ranking system for professional League of Legends e
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/yourusername/lpp.git
-cd lpp-backend
+git clone https://github.com/DutrieuxLU/lpp.git
+cd lpp
 
 # 2. Install dependencies
-go mod tidy
+cd lpp-backend && go mod tidy
+cd ../lpp-frontend && npm install
 
 # 3. Set environment variables
 export PORT=8080
-export DATABASE_URL="postgres://user:pass@localhost:5432/lpp?sslmode=disable"
-export CITO_API_KEY="your-api-key"
+export DATABASE_URL="postgres://postgres:postgres@localhost:5432/lpp?sslmode=disable"
 
-# 4. Run
-go run main.go
+# 4. Start services
+make seed  # Seed database with initial data
+make up   # Start frontend and backend
 ```
 
-The server will start at `http://localhost:8080`
+The frontend will be at `http://localhost:3000`
+The backend API will be at `http://localhost:8080`
 
 ## Prerequisites
 
@@ -123,16 +125,22 @@ See ARCHITECTURE.md for detailed architecture documentation.
 3. Make your changes
 4. Submit a pull request
 
-## Roadmap
+## Features
 
 - [x] Backend API with Go/Gin
-- [ ] Database setup with PostgreSQL
-- [ ] Basic ranking calculation
-- [ ] External data integration (Cito API)
-- [ ] Frontend public display
-- [ ] Admin vote submission panel
+- [x] PostgreSQL database
+- [x] Ranking calculation (Top 15)
+- [x] Team sync from LOLesports API (with logos)
+- [x] Public poll display
+- [x] Admin vote submission panel
+- [x] Role-based system (admin/pollster/general)
+- [x] Voter application form
 - [ ] Historical archive
 - [ ] Voter management
+
+## Allowed Regions
+
+LEC, LCS, LCK, LPL, LCP (PCS), CBLOL
 
 ## License
 
