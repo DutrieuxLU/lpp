@@ -177,7 +177,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="space-y-2">
-            {data.rankings.map((ranking) => (
+            {data.rankings.slice(0, 15).map((ranking) => (
               <div
                 key={ranking.rank}
                 className="flex items-center gap-4 p-4 bg-zinc-900/50 rounded-lg border border-zinc-800"

@@ -43,7 +43,7 @@ func (s *RankingService) CalculateRankings(pollWeekID uint) ([]models.Ranking, e
 		}
 
 		for _, r := range rankings {
-			points := 26 - r.Rank
+			points := 16 - r.Rank
 			if points > 0 {
 				teamPoints[r.TeamID] += points
 			}

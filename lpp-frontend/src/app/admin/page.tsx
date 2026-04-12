@@ -35,7 +35,7 @@ export default function AdminPage() {
   const handleRankChange = (teamId: number, rank: number) => {
     setRankings((prev) => {
       const filtered = prev.filter((r) => r.teamId !== teamId);
-      if (rank > 0) {
+      if (rank > 0 && rank <= 15) {
         return [...filtered, { teamId, rank }].sort((a, b) => a.rank - b.rank);
       }
       return filtered;
@@ -113,7 +113,7 @@ export default function AdminPage() {
             className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg mb-4"
           />
 
-          <h2 className="text-xl font-semibold mb-4">Your Ballot ({rankings.length} teams)</h2>
+          <h2 className="text-xl font-semibold mb-4">Your Ballot ({rankings.length}/15 teams)</h2>
           <div className="space-y-2 mb-6 max-h-96 overflow-y-auto">
             {rankings.map((r) => {
               const team = teams.find((t) => t.id === r.teamId);
@@ -160,7 +160,7 @@ export default function AdminPage() {
                   key={team.id}
                   className="flex items-center gap-3 p-3 bg-zinc-900 rounded-lg cursor-pointer hover:bg-zinc-800"
                   onClick={() => {
-                    if (!existingRank) {
+                    if (!existingRank && rankings.length < 15) {
                       const nextRank = rankings.length + 1;
                       handleRankChange(team.id, nextRank);
                     }
