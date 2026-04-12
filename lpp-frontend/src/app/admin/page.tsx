@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     async function loadData() {
@@ -151,9 +152,15 @@ export default function AdminPage() {
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Rank Teams</h2>
-          <p className="text-zinc-500 text-sm mb-4">Click to assign a rank</p>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search teams..."
+            className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg mb-4"
+          />
           <div className="space-y-2 max-h-[600px] overflow-y-auto">
-            {teams.map((team) => {
+            {teams.filter(t => t.name.toLowerCase().includes(search.toLowerCase()) || t.shortName.toLowerCase().includes(search.toLowerCase())).map((team) => {
               const existingRank = rankings.find((r) => r.teamId === team.id);
               return (
                 <div

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getCurrentRankings, login } from "@/lib/api";
-import { RankingsResponse, PollWeek } from "@/types/api";
+import { getCurrentRankings } from "@/lib/api";
+import { RankingsResponse } from "@/types/api";
 
 const REGIONS = [
   { value: "global", label: "Global" },
@@ -20,14 +20,13 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [region, setRegion] = useState("global");
 
-  const [showLogin, setShowLogin] = useState(false);
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const [loggingIn, setLoggingIn] = useState(false);
   const [voter, setVoter] = useState<{ name: string } | null>(null);
 
   useEffect(() => {
+    const storedVoter = localStorage.getItem("voter");
+    if (storedVoter) {
+      setVoter(JSON.parse(storedVoter));
+    }
     loadData();
   }, [region]);
 
@@ -43,24 +42,9 @@ export default function Home() {
     }
   }
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoggingIn(true);
-    setLoginError(null);
-    try {
-      const res = await login(loginEmail, loginPassword);
-      setVoter({ name: res.voter.name });
-      setShowLogin(false);
-      setLoginEmail("");
-      setLoginPassword("");
-    } catch (err) {
-      setLoginError(err instanceof Error ? err.message : "Login failed");
-    } finally {
-      setLoggingIn(false);
-    }
-  };
-
   const handleLogout = () => {
+    localStorage.removeItem("voter");
+    localStorage.removeItem("token");
     setVoter(null);
   };
 
@@ -92,53 +76,21 @@ export default function Home() {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => setShowLogin(!showLogin)}
-                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm font-medium"
-              >
-                Voter Login
-              </button>
+              <div className="flex items-center gap-3">
+                <a href="/apply" className="px-4 py-2 text-zinc-400 hover:text-zinc-300 text-sm font-medium">
+                  Apply
+                </a>
+                <a
+                  href="/login"
+                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm font-medium"
+                >
+                  Login
+                </a>
+              </div>
             )}
           </div>
         </div>
       </header>
-
-      {showLogin && (
-        <div className="border-b border-zinc-800 bg-zinc-900/30">
-          <div className="max-w-4xl mx-auto px-4 py-6">
-            <form onSubmit={handleLogin} className="flex gap-3 items-end">
-              <div className="flex-1 max-w-xs">
-                <label className="block text-sm text-zinc-400 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100"
-                  placeholder="voter@lpp.com"
-                />
-              </div>
-              <div className="flex-1 max-w-xs">
-                <label className="block text-sm text-zinc-400 mb-1">Password</label>
-                <input
-                  type="password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100"
-                  placeholder="password123"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loggingIn}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 rounded-lg text-sm font-medium"
-              >
-                {loggingIn ? "..." : "Login"}
-              </button>
-            </form>
-            {loginError && <p className="text-red-400 text-sm mt-2">{loginError}</p>}
-          </div>
-        </div>
-      )}
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6 flex items-center justify-between">

@@ -19,6 +19,27 @@ const (
 	RegionVCS   Region = "VCS"
 )
 
+type Role string
+
+const (
+	RoleAdmin    Role = "admin"
+	RolePollster Role = "pollster"
+	RoleGeneral  Role = "general"
+)
+
+type Region string
+
+const (
+	RegionLCS   Region = "LCS"
+	RegionLEC   Region = "LEC"
+	RegionLCK   Region = "LCK"
+	RegionLPL   Region = "LPL"
+	RegionCBLOL Region = "CBLOL"
+	RegionLLA   Region = "LLA"
+	RegionPCS   Region = "PCS"
+	RegionVCS   Region = "VCS"
+)
+
 type Split string
 
 const (
@@ -66,6 +87,7 @@ type Voter struct {
 	Outlet    string         `gorm:"size:100" json:"outlet"`
 	Email     string         `gorm:"size:255;not null;uniqueIndex" json:"email"`
 	Password  string         `gorm:"size:255" json:"-"`
+	Role      Role           `gorm:"size:20;default:'general'" json:"role"`
 	Region    Region         `gorm:"size:10" json:"region"`
 	IsActive  bool           `gorm:"default:true" json:"isActive"`
 }
@@ -92,7 +114,7 @@ type Ranking struct {
 type Match struct {
 	ID         uint      `gorm:"primarykey" json:"id"`
 	CreatedAt  time.Time `json:"createdAt"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	UpdatedAt  time.Time `json:"createdAt"`
 	ExternalID string    `gorm:"size:50;uniqueIndex" json:"externalId"`
 	Date       time.Time `json:"date"`
 	Team1ID    uint      `gorm:"not null" json:"team1Id"`
@@ -101,4 +123,23 @@ type Match struct {
 	Team2Score int       `gorm:"default:0" json:"team2Score"`
 	Region     Region    `gorm:"size:10" json:"region"`
 	League     string    `gorm:"size:20" json:"league"`
+}
+
+type ApplicationStatus string
+
+const (
+	ApplicationStatusPending  ApplicationStatus = "pending"
+	ApplicationStatusApproved ApplicationStatus = "approved"
+	ApplicationStatusRejected ApplicationStatus = "rejected"
+)
+
+type Application struct {
+	ID        uint              `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time         `json:"createdAt"`
+	Name      string            `gorm:"size:100;not null" json:"name"`
+	Email     string            `gorm:"size:255;not null" json:"email"`
+	Outlet    string            `gorm:"size:100" json:"outlet"`
+	Region    Region            `gorm:"size:10" json:"region"`
+	Notes     string            `gorm:"type:text" json:"notes"`
+	Status    ApplicationStatus `gorm:"size:20;default:'pending'" json:"status"`
 }

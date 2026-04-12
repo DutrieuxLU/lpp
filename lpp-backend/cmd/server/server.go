@@ -32,6 +32,7 @@ func Run(cfg *config.Config) error {
 		handlers.RegisterWeekRoutes(api, database)
 		handlers.RegisterVoteRoutes(api, database)
 		handlers.RegisterAuthRoutes(api, database)
+		handlers.RegisterApplicationRoutes(api, database)
 	}
 
 	log.Printf("Server starting on port %s", cfg.Port)

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"lpp-backend/internal/models"
+	"lpp-backend/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -17,6 +18,7 @@ func RegisterTeamRoutes(group *gin.RouterGroup, db *gorm.DB) {
 	group.POST("/teams", teamHandler.CreateTeam)
 	group.PUT("/teams/:id", teamHandler.UpdateTeam)
 	group.DELETE("/teams/:id", teamHandler.DeleteTeam)
+	group.POST("/teams/sync", teamHandler.SyncTeams)
 }
 
 type TeamHandler struct {
@@ -103,4 +105,14 @@ func (h *TeamHandler) DeleteTeam(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Team deleted"})
+}
+
+func (h *TeamHandler) SyncTeams(c *gin.Context) {
+	svc := services.NewTeamSyncService(h.db)
+	created, updated, err := svc.SyncTeams()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"created": created, "updated": updated})
 }
