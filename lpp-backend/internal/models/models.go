@@ -144,3 +144,14 @@ type Application struct {
 	Notes     string            `gorm:"type:text" json:"notes"`
 	Status    ApplicationStatus `gorm:"size:20;default:'pending'" json:"status"`
 }
+
+type EmailCode struct {
+	ID        uint           `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	Email     string         `gorm:"size:255;not null;index" json:"email"`
+	Code      string         `gorm:"size:6;not null" json:"-"`
+	ExpiresAt time.Time      `gorm:"not null" json:"expiresAt"`
+	Used      bool           `gorm:"default:false" json:"used"`
+}

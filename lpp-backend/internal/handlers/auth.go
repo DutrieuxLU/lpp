@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"lpp-backend/internal/config"
+	"lpp-backend/internal/email"
 	"lpp-backend/internal/models"
 	"lpp-backend/internal/security"
 
@@ -15,21 +16,24 @@ import (
 )
 
 func RegisterAuthRoutes(group *gin.RouterGroup, db *gorm.DB, cfg *config.Config) {
-	authHandler := NewAuthHandler(db, cfg)
+	emailSvc := email.NewEmailService(cfg.ResendAPIKey, cfg.ResendFromEmail)
+	authHandler := NewAuthHandler(db, cfg, emailSvc)
 
 	group.POST("/register", authHandler.Register)
 	group.POST("/login", authHandler.Login)
+	group.POST("/verify-2fa", authHandler.Verify2FA)
 	group.POST("/refresh", authHandler.Refresh)
 	group.POST("/logout", authHandler.Logout)
 }
 
 type AuthHandler struct {
-	db  *gorm.DB
-	cfg *config.Config
+	db       *gorm.DB
+	cfg      *config.Config
+	emailSvc *email.EmailService
 }
 
-func NewAuthHandler(db *gorm.DB, cfg *config.Config) *AuthHandler {
-	return &AuthHandler{db: db, cfg: cfg}
+func NewAuthHandler(db *gorm.DB, cfg *config.Config, emailSvc *email.EmailService) *AuthHandler {
+	return &AuthHandler{db: db, cfg: cfg, emailSvc: emailSvc}
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
@@ -134,6 +138,68 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	if !voter.IsActive {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Account is not active"})
+		return
+	}
+
+	code := generateCode(6)
+	expiresAt := time.Now().Add(2 * time.Minute)
+
+	h.db.Where("email = ?", req.Email).Delete(&models.EmailCode{})
+
+	emailCode := models.EmailCode{
+		Email:     req.Email,
+		Code:      code,
+		ExpiresAt: expiresAt,
+		Used:      false,
+	}
+	if err := h.db.Create(&emailCode).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create verification code"})
+		return
+	}
+
+	go h.emailSvc.SendVerificationCode(req.Email, code)
+
+	tempToken, err := security.SignToken(h.cfg.JWTSecret, voter.ID, voter.Email, string(voter.Role), voter.Username, 5*time.Minute)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate temp token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"require2FA": true,
+		"tempToken":  tempToken,
+		"message":    "Verification code sent to your email",
+	})
+}
+
+func (h *AuthHandler) Verify2FA(c *gin.Context) {
+	var req struct {
+		TempToken string `json:"tempToken" binding:"required"`
+		Code      string `json:"code" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Temp token and code required"})
+		return
+	}
+
+	claims, err := security.ParseToken(h.cfg.JWTSecret, req.TempToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired temp token"})
+		return
+	}
+
+	var emailCode models.EmailCode
+	if err := h.db.Where("email = ? AND code = ? AND used = ? AND expires_at > ?", claims.Email, req.Code, false, time.Now()).First(&emailCode).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired verification code"})
+		return
+	}
+
+	emailCode.Used = true
+	h.db.Save(&emailCode)
+
+	var voter models.Voter
+	if err := h.db.First(&voter, claims.VoterID).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
 	}
 
@@ -245,4 +311,16 @@ func generateRefreshToken() string {
 	b := make([]byte, 32)
 	rand.Read(b)
 	return hex.EncodeToString(b)
+}
+
+func generateCode(length int) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = byte(49 + i%9)
+	}
+	rand.Read(b)
+	for i := range b {
+		b[i] = byte(48 + int(b[i])%10)
+	}
+	return string(b)
 }

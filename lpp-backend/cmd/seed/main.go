@@ -1,13 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"time"
 
 	"lpp-backend/internal/config"
 	"lpp-backend/internal/db"
 	"lpp-backend/internal/models"
+	"lpp-backend/internal/security"
 	"lpp-backend/internal/services"
 
 	"gorm.io/gorm"
@@ -25,9 +25,12 @@ func main() {
 }
 
 func seedData(db *gorm.DB) {
+	db.Exec("DELETE FROM email_codes")
+	db.Exec("DELETE FROM refresh_tokens")
 	db.Exec("DELETE FROM rankings")
 	db.Exec("DELETE FROM votes")
 	db.Exec("DELETE FROM poll_weeks")
+	db.Exec("DELETE FROM applications")
 	db.Exec("DELETE FROM voters")
 
 	var teamCount int64
@@ -60,14 +63,13 @@ func seedData(db *gorm.DB) {
 	}
 	log.Printf("Created poll week: Week %d %s %d", pollWeek.WeekNumber, pollWeek.Split, pollWeek.Year)
 
-	// Use short names that match the synced API data
 	rankingsData := []struct {
 		shortName string
 		points    int
 		fpv       int
 	}{
-		{"BLG", 18, 3}, // Bilibili Gaming
-		{"GEN", 16, 2}, // Gen.G
+		{"BLG", 18, 3},
+		{"GEN", 16, 2},
 		{"T1", 14, 1},
 		{"JDG", 12, 0},
 		{"G2", 11, 0},
@@ -104,7 +106,27 @@ func seedData(db *gorm.DB) {
 	}
 	log.Printf("Seeded %d rankings", len(rankings))
 
-	// Create John Pollster
+	adminPassword := "21405#*3o2oij@^*(@RMKQ.sA@aosdijf"
+	hashedAdminPassword, err := security.HashPassword(adminPassword)
+	if err != nil {
+		log.Fatalf("Failed to hash admin password: %v", err)
+	}
+
+	adminVoter := models.Voter{
+		Name:     "Laurent Dutrieux",
+		Username: "admin",
+		Outlet:   "LPP Admin",
+		Email:    "dutrieuxl31022@gmail.com",
+		Password: hashedAdminPassword,
+		Role:     models.RoleAdmin,
+		Region:   models.RegionLEC,
+		IsActive: true,
+	}
+	if err := db.Create(&adminVoter).Error; err != nil {
+		log.Fatalf("Failed to create admin: %v", err)
+	}
+	log.Printf("Created admin voter: %s (role: admin)", adminVoter.Email)
+
 	johnPollster := models.Voter{
 		Name:     "John Pollster",
 		Username: "johnpollster",
@@ -114,77 +136,10 @@ func seedData(db *gorm.DB) {
 		Role:     models.RolePollster,
 		Region:   models.RegionLCS,
 		IsActive: true,
-		Bio:      "Esports journalist covering the LCS since 2020. Former player turned analyst with a focus on NA League of Legends.",
+		Bio:      "Esports journalist covering the LCS since 2020.",
 	}
 	if err := db.Create(&johnPollster).Error; err != nil {
 		log.Fatalf("Failed to create John Pollster: %v", err)
 	}
 	log.Printf("Created voter: %s (John Pollster - LCS)", johnPollster.Email)
-
-	// Create John Pollster's vote for Week 1
-	johnRankings := []struct {
-		shortName string
-		rank      int
-	}{
-		{"C9", 1},
-		{"TL", 2},
-		{"100T", 3},
-		{"FLY", 4},
-		{"DIG", 5},
-		{"TSM", 6},
-		{"NRG", 7},
-		{"CLG", 8},
-		{"IMT", 9},
-		{"SR", 10},
-	}
-
-	var rankingsSlice []map[string]interface{}
-	for _, r := range johnRankings {
-		teamID := teamMapByShort[r.shortName]
-		if teamID == 0 {
-			log.Printf("Warning: team %s not found in DB, skipping vote entry", r.shortName)
-			continue
-		}
-		rankingsSlice = append(rankingsSlice, map[string]interface{}{
-			"teamId": teamID,
-			"rank":   r.rank,
-		})
-	}
-
-	rankingsJSON, _ := json.Marshal(rankingsSlice)
-	vote := models.Vote{
-		PollWeekID:  pollWeek.ID,
-		VoterID:     johnPollster.ID,
-		Rankings:    string(rankingsJSON),
-		SubmittedAt: time.Now().Add(-time.Hour * 2),
-	}
-	if err := db.Create(&vote).Error; err != nil {
-		log.Fatalf("Failed to create John Pollster's vote: %v", err)
-	}
-	log.Printf("Created vote for John Pollster: Week %d %s %d", pollWeek.WeekNumber, pollWeek.Split, pollWeek.Year)
-
-	voters := []models.Voter{
-		{
-			Name:     "Test Voter",
-			Outlet:   "Test Outlet",
-			Email:    "voter@lpp.com",
-			Password: "password123",
-			Region:   models.RegionLCS,
-			IsActive: true,
-		},
-		{
-			Name:     "Laurent Dutrieux",
-			Outlet:   "LPP",
-			Email:    "dutrieuxl31022@gmail.com",
-			Password: "Cubs2016@",
-			Region:   models.RegionLEC,
-			IsActive: true,
-		},
-	}
-	if err := db.Create(&voters).Error; err != nil {
-		log.Fatalf("Failed to create voters: %v", err)
-	}
-	for _, v := range voters {
-		log.Printf("Created voter: %s", v.Email)
-	}
 }

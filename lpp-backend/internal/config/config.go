@@ -11,6 +11,8 @@ type Config struct {
 	JWTSecret       string
 	TurnstileSecret string
 	SentryDSN       string
+	ResendAPIKey    string
+	ResendFromEmail string
 }
 
 func Load() *Config {
@@ -21,6 +23,8 @@ func Load() *Config {
 		JWTSecret:       getEnv("JWT_SECRET", ""),
 		TurnstileSecret: getEnv("TURNSTILE_SECRET", ""),
 		SentryDSN:       getEnv("SENTRY_DSN", ""),
+		ResendAPIKey:    getEnv("RESEND_API_KEY", ""),
+		ResendFromEmail: getEnv("RESEND_FROM_EMAIL", ""),
 	}
 }
 
