@@ -12,7 +12,11 @@ import (
 )
 
 func Connect(cfg *config.Config) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{
+	return ConnectWithConfig(cfg.DatabaseURL)
+}
+
+func ConnectWithConfig(databaseURL string) (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
