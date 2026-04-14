@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"time"
 
@@ -102,6 +103,63 @@ func seedData(db *gorm.DB) {
 		log.Fatalf("Failed to seed rankings: %v", err)
 	}
 	log.Printf("Seeded %d rankings", len(rankings))
+
+	// Create John Pollster
+	johnPollster := models.Voter{
+		Name:     "John Pollster",
+		Outlet:   "Esports Weekly",
+		Email:    "john@lpp.com",
+		Password: "pollster123",
+		Role:     models.RolePollster,
+		Region:   models.RegionLCS,
+		IsActive: true,
+	}
+	if err := db.Create(&johnPollster).Error; err != nil {
+		log.Fatalf("Failed to create John Pollster: %v", err)
+	}
+	log.Printf("Created voter: %s (John Pollster - LCS)", johnPollster.Email)
+
+	// Create John Pollster's vote for Week 1
+	johnRankings := []struct {
+		shortName string
+		rank      int
+	}{
+		{"C9", 1},
+		{"TL", 2},
+		{"100T", 3},
+		{"FLY", 4},
+		{"DIG", 5},
+		{"TSM", 6},
+		{"NRG", 7},
+		{"CLG", 8},
+		{"IMT", 9},
+		{"SR", 10},
+	}
+
+	var rankingsSlice []map[string]interface{}
+	for _, r := range johnRankings {
+		teamID := teamMapByShort[r.shortName]
+		if teamID == 0 {
+			log.Printf("Warning: team %s not found in DB, skipping vote entry", r.shortName)
+			continue
+		}
+		rankingsSlice = append(rankingsSlice, map[string]interface{}{
+			"teamId": teamID,
+			"rank":   r.rank,
+		})
+	}
+
+	rankingsJSON, _ := json.Marshal(rankingsSlice)
+	vote := models.Vote{
+		PollWeekID:  pollWeek.ID,
+		VoterID:     johnPollster.ID,
+		Rankings:    string(rankingsJSON),
+		SubmittedAt: time.Now().Add(-time.Hour * 2),
+	}
+	if err := db.Create(&vote).Error; err != nil {
+		log.Fatalf("Failed to create John Pollster's vote: %v", err)
+	}
+	log.Printf("Created vote for John Pollster: Week %d %s %d", pollWeek.WeekNumber, pollWeek.Split, pollWeek.Year)
 
 	voters := []models.Voter{
 		{
