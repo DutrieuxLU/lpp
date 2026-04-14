@@ -16,6 +16,7 @@ func RegisterRankingRoutes(group *gin.RouterGroup, db *gorm.DB) {
 	group.GET("/rankings/current", rankingHandler.GetCurrentRankings)
 	group.GET("/rankings/week/:weekId", rankingHandler.GetWeekRankings)
 	group.POST("/rankings/calculate", rankingHandler.CalculateRankings)
+	group.DELETE("/rankings/week/:weekId", rankingHandler.ClearRankings)
 }
 
 type RankingHandler struct {
@@ -167,5 +168,30 @@ func (h *RankingHandler) CalculateRankings(c *gin.Context) {
 		return
 	}
 
+	var pollWeek models.PollWeek
+	if err := h.db.First(&pollWeek, req.PollWeekID).Error; err == nil {
+		pollWeek.Status = models.PollStatusPublished
+		h.db.Save(&pollWeek)
+	}
+
 	c.JSON(http.StatusOK, gin.H{"rankings": rankings})
+}
+
+func (h *RankingHandler) ClearRankings(c *gin.Context) {
+	weekID := c.Param("weekId")
+	var pollWeek models.PollWeek
+	if err := h.db.First(&pollWeek, weekID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Poll week not found"})
+		return
+	}
+
+	if err := h.db.Where("poll_week_id = ?", pollWeek.ID).Delete(&models.Ranking{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	pollWeek.Status = models.PollStatusOpen
+	h.db.Save(&pollWeek)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Rankings cleared for week " + weekID})
 }

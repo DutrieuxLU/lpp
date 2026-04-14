@@ -5,16 +5,22 @@ import (
 )
 
 type Config struct {
-	Port        string
-	DatabaseURL string
-	CitoAPIKey  string
+	Port            string
+	DatabaseURL     string
+	CitoAPIKey      string
+	JWTSecret       string
+	TurnstileSecret string
+	SentryDSN       string
 }
 
 func Load() *Config {
 	return &Config{
-		Port:        getEnv("PORT", "8080"),
-		DatabaseURL: getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/lpp?sslmode=disable"),
-		CitoAPIKey:  getEnv("CITO_API_KEY", ""),
+		Port:            getEnv("PORT", "8080"),
+		DatabaseURL:     getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/lpp?sslmode=disable"),
+		CitoAPIKey:      getEnv("CITO_API_KEY", ""),
+		JWTSecret:       getEnv("JWT_SECRET", ""),
+		TurnstileSecret: getEnv("TURNSTILE_SECRET", ""),
+		SentryDSN:       getEnv("SENTRY_DSN", ""),
 	}
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const REGIONS = [
@@ -23,6 +23,19 @@ export default function ApplyPage() {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string>("dev-bypass");
+
+  useEffect(() => {
+    const sitekey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+    if (sitekey && typeof window !== "undefined" && (window as any).turnstile) {
+      (window as any).turnstile.render("#turnstile-container", {
+        sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+        callback: (token: string) => {
+          setTurnstileToken(token);
+        },
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,10 +43,10 @@ export default function ApplyPage() {
     setMessage(null);
 
     try {
-      const res = await fetch("http://localhost:8080/api/v1/applications", {
+      const res = await fetch("http://localhost:8080/api/v1/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, turnstileToken }),
       });
       if (!res.ok) throw new Error("Failed to submit");
       setMessage("Application submitted successfully!");
@@ -125,9 +138,11 @@ export default function ApplyPage() {
               />
             </div>
 
+            <div id="turnstile-container" className="flex justify-center"></div>
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !turnstileToken}
               className="w-full py-3 bg-[#C8AA6E] text-[#010A13] hover:bg-[#F0E6D2] disabled:bg-[#1E2328] disabled:text-[#786E4D] font-semibold text-sm tracking-wide"
             >
               {loading ? "Submitting..." : "Submit Application"}

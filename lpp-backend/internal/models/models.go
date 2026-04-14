@@ -123,6 +123,17 @@ const (
 	ApplicationStatusRejected ApplicationStatus = "rejected"
 )
 
+type RefreshToken struct {
+	ID        uint           `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	VoterID   uint           `gorm:"not null;index" json:"voterId"`
+	Token     string         `gorm:"size:64;not null;uniqueIndex" json:"-"`
+	ExpiresAt time.Time      `gorm:"not null" json:"expiresAt"`
+	Revoked   bool           `gorm:"default:false" json:"revoked"`
+}
+
 type Application struct {
 	ID        uint              `gorm:"primarykey" json:"id"`
 	CreatedAt time.Time         `json:"createdAt"`

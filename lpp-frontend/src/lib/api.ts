@@ -61,20 +61,29 @@ export async function calculateRankings(pollWeekId: number): Promise<Ranking[]> 
   });
 }
 
+export async function clearRankings(pollWeekId: number): Promise<void> {
+  return fetchAPI<void>(`/rankings/week/${pollWeekId}`, {
+    method: "DELETE",
+  });
+}
+
 export interface LoginResponse {
   voter: {
     id: number;
     name: string;
     email: string;
+    username: string;
+    role: string;
     region: string;
   };
-  token: string;
+  accessToken: string;
+  refreshToken?: string;
 }
 
-export async function login(email: string, password: string): Promise<LoginResponse> {
+export async function login(email: string, password: string, turnstileToken?: string): Promise<LoginResponse> {
   return fetchAPI<LoginResponse>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, turnstileToken }),
   });
 }
 

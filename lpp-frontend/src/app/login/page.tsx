@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api";
 
@@ -10,16 +10,29 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string>("dev-bypass");
+
+  useEffect(() => {
+    const sitekey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+    if (sitekey && typeof window !== "undefined" && (window as any).turnstile) {
+      (window as any).turnstile.render("#turnstile-container", {
+        sitekey,
+        callback: (token: string) => {
+          setTurnstileToken(token);
+        },
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      const res = await login(email, password);
+      const res = await login(email, password, turnstileToken);
       localStorage.setItem("voter", JSON.stringify(res.voter));
-      localStorage.setItem("token", res.token);
-      router.push("/admin");
+      localStorage.setItem("token", res.accessToken);
+      router.push("/vote");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -69,9 +82,11 @@ export default function LoginPage() {
               />
             </div>
 
+            <div id="turnstile-container" className="flex justify-center"></div>
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !turnstileToken}
               className="w-full py-3 bg-[#C8AA6E] text-[#010A13] hover:bg-[#F0E6D2] disabled:bg-[#1E2328] disabled:text-[#786E4D] font-semibold text-sm tracking-wide"
             >
               {loading ? "Authenticating..." : "Sign In"}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "LPP - League Press Poll",
@@ -13,8 +14,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
+      <head>
+        <script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+          async
+          defer
+        ></script>
+      </head>
       <body className="min-h-full flex flex-col bg-[#010A13] text-[#F0E6D2]">
         {children}
+        <Footer />
       </body>
     </html>
   );

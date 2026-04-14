@@ -79,6 +79,47 @@ func (h *VoteHandler) SubmitVote(c *gin.Context) {
 		return
 	}
 
+	// Check if voter already voted for this poll week
+	var existingVote models.Vote
+	if err := h.db.Where("poll_week_id = ? AND voter_id = ?", req.PollWeekID, req.VoterID).First(&existingVote).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "You have already voted for this week. Please contact an admin to modify your vote."})
+		return
+	}
+
+	// Validate rankings
+	if len(req.Rankings) != 15 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "You must rank exactly 15 teams"})
+		return
+	}
+
+	// Check for duplicate team IDs
+	seenTeams := make(map[uint]bool)
+	for _, r := range req.Rankings {
+		if r.TeamID == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid team ID in rankings"})
+			return
+		}
+		if seenTeams[r.TeamID] {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Duplicate team in rankings: each team can only be ranked once"})
+			return
+		}
+		seenTeams[r.TeamID] = true
+	}
+
+	// Check for duplicate ranks
+	seenRanks := make(map[int]bool)
+	for _, r := range req.Rankings {
+		if r.Rank < 1 || r.Rank > 15 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Rank must be between 1 and 15"})
+			return
+		}
+		if seenRanks[r.Rank] {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Duplicate rank value: each rank position can only be used once"})
+			return
+		}
+		seenRanks[r.Rank] = true
+	}
+
 	rankingsJSON, _ := json.Marshal(req.Rankings)
 
 	vote := models.Vote{

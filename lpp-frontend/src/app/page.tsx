@@ -20,7 +20,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [region, setRegion] = useState("global");
 
-  const [voter, setVoter] = useState<{ name: string } | null>(null);
+  const [voter, setVoter] = useState<{ id: number; name: string; role: string; email: string } | null>(null);
 
   useEffect(() => {
     const storedVoter = localStorage.getItem("voter");
@@ -74,8 +74,16 @@ export default function Home() {
             {voter ? (
               <div className="flex items-center gap-4">
                 <span className="text-[#A8B4BE] text-sm">Welcome, {voter.name}</span>
+                {voter.role === "admin" && (
+                  <a 
+                    href="/admin" 
+                    className="px-3 py-1.5 border border-[#C8AA6E]/30 text-[#C8AA6E] hover:border-[#C8AA6E] hover:text-[#F0E6D2] text-sm font-medium"
+                  >
+                    Admin
+                  </a>
+                )}
                 <a 
-                  href="/admin" 
+                  href="/vote" 
                   className="px-4 py-1.5 bg-[#C8AA6E] text-[#010A13] hover:bg-[#F0E6D2] text-sm font-semibold"
                 >
                   Vote
