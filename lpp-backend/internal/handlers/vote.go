@@ -27,8 +27,12 @@ func NewVoteHandler(db *gorm.DB) *VoteHandler {
 }
 
 type TeamRanking struct {
-	TeamID uint `json:"teamId"`
-	Rank   int  `json:"rank"`
+	TeamID     uint   `json:"teamId"`
+	Rank       int    `json:"rank"`
+	TeamName   string `json:"teamName,omitempty"`
+	TeamShort  string `json:"teamShort,omitempty"`
+	TeamLogo   string `json:"teamLogo,omitempty"`
+	TeamRegion string `json:"teamRegion,omitempty"`
 }
 
 func (h *VoteHandler) GetVotesByWeek(c *gin.Context) {

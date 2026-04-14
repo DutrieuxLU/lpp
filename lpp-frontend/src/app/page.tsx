@@ -65,6 +65,12 @@ export default function Home() {
             <p className="text-[#A8B4BE] mt-0.5 text-sm">League Press Poll</p>
           </div>
           <div className="flex items-center gap-4">
+            <a 
+              href="/pollsters" 
+              className="text-[#A8B4BE] hover:text-[#C8AA6E] text-sm border-b border-transparent hover:border-[#C8AA6E]"
+            >
+              Pollsters
+            </a>
             {voter ? (
               <div className="flex items-center gap-4">
                 <span className="text-[#A8B4BE] text-sm">Welcome, {voter.name}</span>

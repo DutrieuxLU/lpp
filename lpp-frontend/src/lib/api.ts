@@ -1,4 +1,4 @@
-import { RankingsResponse, PollWeek, Team, TeamRanking, Ranking } from "@/types/api";
+import { RankingsResponse, PollWeek, Team, TeamRanking, Ranking, PollsterResponse, PollstersListResponse, PollsterVotesResponse } from "@/types/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
@@ -74,4 +74,16 @@ export async function login(email: string, password: string): Promise<LoginRespo
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
+}
+
+export async function getPollsters(page: number = 1, limit: number = 20): Promise<PollstersListResponse> {
+  return fetchAPI<PollstersListResponse>(`/pollsters?page=${page}&limit=${limit}`);
+}
+
+export async function getPollster(id: number): Promise<PollsterResponse> {
+  return fetchAPI<PollsterResponse>(`/pollsters/${id}`);
+}
+
+export async function getPollsterVotes(id: number, page: number = 1, limit: number = 10): Promise<PollsterVotesResponse> {
+  return fetchAPI<PollsterVotesResponse>(`/pollsters/${id}/votes?page=${page}&limit=${limit}`);
 }
