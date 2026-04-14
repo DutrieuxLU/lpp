@@ -46,10 +46,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"voter": gin.H{
-			"id":     voter.ID,
-			"name":   voter.Name,
-			"email":  voter.Email,
-			"region": voter.Region,
+			"id":       voter.ID,
+			"name":     voter.Name,
+			"email":    voter.Email,
+			"username": voter.Username,
+			"role":     voter.Role,
+			"region":   voter.Region,
 		},
 		"token": "simple-token-" + string(rune(voter.ID)),
 	})

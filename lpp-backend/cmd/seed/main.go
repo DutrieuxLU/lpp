@@ -107,12 +107,14 @@ func seedData(db *gorm.DB) {
 	// Create John Pollster
 	johnPollster := models.Voter{
 		Name:     "John Pollster",
+		Username: "johnpollster",
 		Outlet:   "Esports Weekly",
 		Email:    "john@lpp.com",
 		Password: "pollster123",
 		Role:     models.RolePollster,
 		Region:   models.RegionLCS,
 		IsActive: true,
+		Bio:      "Esports journalist covering the LCS since 2020. Former player turned analyst with a focus on NA League of Legends.",
 	}
 	if err := db.Create(&johnPollster).Error; err != nil {
 		log.Fatalf("Failed to create John Pollster: %v", err)

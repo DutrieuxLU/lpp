@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"lpp-backend/internal/models"
 
@@ -15,8 +16,9 @@ func RegisterPollsterRoutes(group *gin.RouterGroup, db *gorm.DB) {
 	pollsterHandler := NewPollsterHandler(db)
 
 	group.GET("/pollsters", pollsterHandler.ListPollsters)
-	group.GET("/pollsters/:id", pollsterHandler.GetPollster)
-	group.GET("/pollsters/:id/votes", pollsterHandler.GetPollsterVotes)
+	group.GET("/pollsters/:identifier", pollsterHandler.GetPollster)
+	group.GET("/pollsters/:identifier/votes", pollsterHandler.GetPollsterVotes)
+	group.PUT("/pollsters/profile", pollsterHandler.UpdateProfile)
 }
 
 type PollsterHandler struct {
@@ -30,10 +32,13 @@ func NewPollsterHandler(db *gorm.DB) *PollsterHandler {
 type PollsterProfile struct {
 	ID        uint   `json:"id"`
 	Name      string `json:"name"`
+	Username  string `json:"username"`
 	Outlet    string `json:"outlet"`
 	Region    string `json:"region"`
 	Role      string `json:"role"`
 	IsActive  bool   `json:"isActive"`
+	Bio       string `json:"bio"`
+	Photo     string `json:"photo"`
 	CreatedAt string `json:"createdAt"`
 }
 
@@ -94,14 +99,19 @@ func (h *PollsterHandler) ListPollsters(c *gin.Context) {
 }
 
 func (h *PollsterHandler) GetPollster(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid pollster ID"})
-		return
-	}
+	identifier := c.Param("identifier")
 
 	var voter models.Voter
-	if err := h.db.First(&voter, id).Error; err != nil {
+	var err error
+
+	if _, err := strconv.ParseUint(identifier, 10, 32); err == nil {
+		id, _ := strconv.ParseUint(identifier, 10, 32)
+		err = h.db.First(&voter, id).Error
+	} else {
+		err = h.db.Where("username = ?", identifier).First(&voter).Error
+	}
+
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Pollster not found"})
 		return
 	}
@@ -109,16 +119,19 @@ func (h *PollsterHandler) GetPollster(c *gin.Context) {
 	pollster := PollsterProfile{
 		ID:        voter.ID,
 		Name:      voter.Name,
+		Username:  voter.Username,
 		Outlet:    voter.Outlet,
 		Region:    string(voter.Region),
 		Role:      string(voter.Role),
 		IsActive:  voter.IsActive,
+		Bio:       voter.Bio,
+		Photo:     voter.Photo,
 		CreatedAt: voter.CreatedAt.Format("2006-01-02"),
 	}
 
 	var latestVote *VoteWithTeams
 	var vote models.Vote
-	if err := h.db.Where("voter_id = ?", id).Order("submitted_at DESC").First(&vote).Error; err == nil {
+	if err := h.db.Where("voter_id = ?", voter.ID).Order("submitted_at DESC").First(&vote).Error; err == nil {
 		var rankings []TeamRanking
 		json.Unmarshal([]byte(vote.Rankings), &rankings)
 
@@ -172,9 +185,20 @@ func (h *PollsterHandler) GetPollster(c *gin.Context) {
 }
 
 func (h *PollsterHandler) GetPollsterVotes(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	identifier := c.Param("identifier")
+
+	var voter models.Voter
+	var err error
+
+	if _, err := strconv.ParseUint(identifier, 10, 32); err == nil {
+		id, _ := strconv.ParseUint(identifier, 10, 32)
+		err = h.db.First(&voter, id).Error
+	} else {
+		err = h.db.Where("username = ?", identifier).First(&voter).Error
+	}
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid pollster ID"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Pollster not found"})
 		return
 	}
 
@@ -183,10 +207,10 @@ func (h *PollsterHandler) GetPollsterVotes(c *gin.Context) {
 	offset := (page - 1) * limit
 
 	var total int64
-	h.db.Model(&models.Vote{}).Where("voter_id = ?", id).Count(&total)
+	h.db.Model(&models.Vote{}).Where("voter_id = ?", voter.ID).Count(&total)
 
 	var votes []models.Vote
-	if err := h.db.Where("voter_id = ?", id).
+	if err := h.db.Where("voter_id = ?", voter.ID).
 		Order("submitted_at DESC").
 		Limit(limit).
 		Offset(offset).
@@ -249,5 +273,76 @@ func (h *PollsterHandler) GetPollsterVotes(c *gin.Context) {
 		"page":       page,
 		"limit":      limit,
 		"totalPages": (int(total) + limit - 1) / limit,
+	})
+}
+
+type UpdateProfileRequest struct {
+	Bio   string `json:"bio"`
+	Photo string `json:"photo"`
+}
+
+func (h *PollsterHandler) UpdateProfile(c *gin.Context) {
+	token := c.GetHeader("Authorization")
+	if token == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization required"})
+		return
+	}
+
+	token = strings.TrimPrefix(token, "Bearer ")
+
+	var voterID uint
+	if strings.HasPrefix(token, "simple-token-") {
+		idStr := strings.TrimPrefix(token, "simple-token-")
+		id, err := strconv.ParseUint(idStr, 10, 32)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			return
+		}
+		voterID = uint(id)
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+		return
+	}
+
+	var voter models.Voter
+	if err := h.db.First(&voter, voterID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Voter not found"})
+		return
+	}
+
+	if voter.Role != models.RolePollster && voter.Role != models.RoleAdmin {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Only pollsters can update their profile"})
+		return
+	}
+
+	var req UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Bio != "" {
+		voter.Bio = req.Bio
+	}
+	if req.Photo != "" {
+		voter.Photo = req.Photo
+	}
+
+	if err := h.db.Save(&voter).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, PollsterProfile{
+		ID:        voter.ID,
+		Name:      voter.Name,
+		Username:  voter.Username,
+		Outlet:    voter.Outlet,
+		Region:    string(voter.Region),
+		Role:      string(voter.Role),
+		IsActive:  voter.IsActive,
+		Bio:       voter.Bio,
+		Photo:     voter.Photo,
+		CreatedAt: voter.CreatedAt.Format("2006-01-02"),
 	})
 }

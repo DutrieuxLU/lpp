@@ -1,11 +1,13 @@
-import { RankingsResponse, PollWeek, Team, TeamRanking, Ranking, PollsterResponse, PollstersListResponse, PollsterVotesResponse } from "@/types/api";
+import { RankingsResponse, PollWeek, Team, TeamRanking, Ranking, PollsterResponse, PollstersListResponse, PollsterVotesResponse, PollsterProfile } from "@/types/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const res = await fetch(`${API_URL}${endpoint}`, {
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
     ...options,
@@ -80,10 +82,17 @@ export async function getPollsters(page: number = 1, limit: number = 20): Promis
   return fetchAPI<PollstersListResponse>(`/pollsters?page=${page}&limit=${limit}`);
 }
 
-export async function getPollster(id: number): Promise<PollsterResponse> {
-  return fetchAPI<PollsterResponse>(`/pollsters/${id}`);
+export async function getPollster(identifier: number | string): Promise<PollsterResponse> {
+  return fetchAPI<PollsterResponse>(`/pollsters/${identifier}`);
 }
 
-export async function getPollsterVotes(id: number, page: number = 1, limit: number = 10): Promise<PollsterVotesResponse> {
-  return fetchAPI<PollsterVotesResponse>(`/pollsters/${id}/votes?page=${page}&limit=${limit}`);
+export async function getPollsterVotes(identifier: number | string, page: number = 1, limit: number = 10): Promise<PollsterVotesResponse> {
+  return fetchAPI<PollsterVotesResponse>(`/pollsters/${identifier}/votes?page=${page}&limit=${limit}`);
+}
+
+export async function updatePollsterProfile(bio: string, photo: string): Promise<PollsterProfile> {
+  return fetchAPI<PollsterProfile>("/pollsters/profile", {
+    method: "PUT",
+    body: JSON.stringify({ bio, photo }),
+  });
 }

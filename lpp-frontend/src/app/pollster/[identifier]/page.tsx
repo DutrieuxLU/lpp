@@ -3,19 +3,22 @@
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getPollster, getPollsterVotes } from "@/lib/api";
-import { PollsterResponse, PollsterVotesResponse, PollsterVote } from "@/types/api";
+import { getPollster, getPollsterVotes, updatePollsterProfile } from "@/lib/api";
+import { PollsterResponse, PollsterVotesResponse, PollsterVote, PollsterProfile } from "@/types/api";
 
-export default function PollsterProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default function PollsterProfilePage({ params }: { params: Promise<{ identifier: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
   const [data, setData] = useState<PollsterResponse | null>(null);
   const [votesData, setVotesData] = useState<PollsterVotesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [authError, setAuthError] = useState(false);
   const [page, setPage] = useState(1);
-  const [voter, setVoter] = useState<{ name: string } | null>(null);
+  const [voter, setVoter] = useState<{ id: number; name: string; role: string } | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editBio, setEditBio] = useState("");
+  const [editPhoto, setEditPhoto] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const storedVoter = localStorage.getItem("voter");
@@ -23,26 +26,36 @@ export default function PollsterProfilePage({ params }: { params: Promise<{ id: 
       setVoter(JSON.parse(storedVoter));
     }
     loadData();
-  }, [resolvedParams.id, page]);
+  }, [resolvedParams.identifier, page]);
 
   async function loadData() {
     try {
       setLoading(true);
-      setAuthError(false);
-      const pollsterData = await getPollster(Number(resolvedParams.id));
+      const pollsterData = await getPollster(resolvedParams.identifier);
       setData(pollsterData);
       if (pollsterData.pollster) {
-        const votes = await getPollsterVotes(Number(resolvedParams.id), page, 10);
+        setEditBio(pollsterData.pollster.bio || "");
+        setEditPhoto(pollsterData.pollster.photo || "");
+        const votes = await getPollsterVotes(resolvedParams.identifier, page, 10);
         setVotesData(votes);
       }
     } catch (err) {
-      if (err instanceof Error && err.message.includes("401")) {
-        setAuthError(true);
-      } else {
-        setError(err instanceof Error ? err.message : "Failed to load pollster");
-      }
+      setError(err instanceof Error ? err.message : "Failed to load pollster");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleSaveProfile() {
+    try {
+      setSaving(true);
+      const updated = await updatePollsterProfile(editBio, editPhoto);
+      setData((prev) => prev ? { ...prev, pollster: updated } : null);
+      setIsEditing(false);
+    } catch (err) {
+      alert("Failed to save profile");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -60,36 +73,12 @@ export default function PollsterProfilePage({ params }: { params: Promise<{ id: 
     if (votesData && page < votesData.totalPages) setPage(page + 1);
   };
 
+  const isOwnProfile = voter && data?.pollster && voter.id === data.pollster.id;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#010A13] text-[#F0E6D2]">
         <div className="text-center py-16 text-[#A8B4BE]">Loading...</div>
-      </div>
-    );
-  }
-
-  if (authError || !voter) {
-    return (
-      <div className="min-h-screen bg-[#010A13] text-[#F0E6D2]">
-        <header className="border-b border-[#1E2328] bg-[#091220]/80">
-          <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
-            <Link href="/" className="cursor-pointer">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight font-serif">LPP</h1>
-                <p className="text-[#A8B4BE] mt-0.5 text-sm">League Press Poll</p>
-              </div>
-            </Link>
-            <Link href="/login" className="px-4 py-1.5 bg-[#C8AA6E] text-[#010A13] hover:bg-[#F0E6D2] text-sm font-semibold">
-              Login
-            </Link>
-          </div>
-        </header>
-        <main className="max-w-5xl mx-auto px-6 py-16 text-center">
-          <div className="border border-[#E84057]/30 bg-[#E84057]/10 p-6">
-            <h2 className="text-xl font-semibold text-[#E84057] mb-2">Authentication Required</h2>
-            <p className="text-[#A8B4BE]">You must be logged in to view pollster profiles.</p>
-          </div>
-        </main>
       </div>
     );
   }
@@ -156,37 +145,111 @@ export default function PollsterProfilePage({ params }: { params: Promise<{ id: 
             <Link href="/pollsters" className="text-[#C8AA6E] text-sm hover:text-[#F0E6D2]">
               Pollsters
             </Link>
-            <div className="flex items-center gap-3">
-              <span className="text-[#A8B4BE] text-sm">{voter.name}</span>
-              <button
-                onClick={handleLogout}
-                className="text-[#A8B4BE] hover:text-[#F0E6D2] text-sm border-b border-transparent hover:border-[#C8AA6E]"
-              >
-                Logout
-              </button>
-            </div>
+            {voter ? (
+              <div className="flex items-center gap-3">
+                <span className="text-[#A8B4BE] text-sm">{voter.name}</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-[#A8B4BE] hover:text-[#F0E6D2] text-sm border-b border-transparent hover:border-[#C8AA6E]"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link href="/login" className="px-4 py-1.5 bg-[#C8AA6E] text-[#010A13] hover:bg-[#F0E6D2] text-sm font-semibold">
+                Login
+              </Link>
+            )}
           </nav>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="mb-8 border-b border-[#1E2328] pb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-2xl font-semibold font-serif">{pollster.name}</h2>
-            <span
-              className={`inline-block px-2 py-0.5 text-xs ${
-                pollster.isActive
-                  ? "bg-[#43B581]/20 text-[#43B581]"
-                  : "bg-[#786E4D]/20 text-[#786E4D]"
-              }`}
-            >
-              {pollster.isActive ? "Active" : "Inactive"}
-            </span>
-          </div>
-          <div className="flex items-center gap-6 text-[#A8B4BE] text-sm">
-            <span>{pollster.outlet}</span>
-            <span>{pollster.region}</span>
-            <span className="text-[#786E4D]">{pollster.role}</span>
+          <div className="flex items-start gap-6">
+            {pollster.photo ? (
+              <img
+                src={pollster.photo}
+                alt={pollster.name}
+                className="w-24 h-24 rounded-full object-cover border-2 border-[#C8AA6E]"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-[#091220] border-2 border-[#C8AA6E] flex items-center justify-center text-[#C8AA6E] text-3xl font-serif">
+                {pollster.name.charAt(0)}
+              </div>
+            )}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h2 className="text-2xl font-semibold font-serif">{pollster.name}</h2>
+                <span
+                  className={`inline-block px-2 py-0.5 text-xs ${
+                    pollster.isActive
+                      ? "bg-[#43B581]/20 text-[#43B581]"
+                      : "bg-[#786E4D]/20 text-[#786E4D]"
+                  }`}
+                >
+                  {pollster.isActive ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <div className="flex items-center gap-6 text-[#A8B4BE] text-sm mb-3">
+                <span>{pollster.outlet}</span>
+                <span>{pollster.region}</span>
+                <span className="text-[#786E4D]">{pollster.role}</span>
+              </div>
+              
+              {isEditing ? (
+                <div className="space-y-3 mt-4">
+                  <div>
+                    <label className="block text-sm text-[#A8B4BE] mb-1">Photo URL</label>
+                    <input
+                      type="text"
+                      value={editPhoto}
+                      onChange={(e) => setEditPhoto(e.target.value)}
+                      className="w-full p-2 bg-[#091220] border border-[#1E2328] text-[#F0E6D2] text-sm"
+                      placeholder="https://example.com/photo.jpg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[#A8B4BE] mb-1">Bio</label>
+                    <textarea
+                      value={editBio}
+                      onChange={(e) => setEditBio(e.target.value)}
+                      className="w-full p-2 bg-[#091220] border border-[#1E2328] text-[#F0E6D2] text-sm h-24"
+                      placeholder="Tell us about yourself..."
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSaveProfile}
+                      disabled={saving}
+                      className="px-4 py-1.5 bg-[#C8AA6E] text-[#010A13] hover:bg-[#F0E6D2] text-sm font-semibold disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Save"}
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="px-4 py-1.5 border border-[#1E2328] text-[#A8B4BE] hover:text-[#F0E6D2] text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {pollster.bio && (
+                    <p className="text-[#A8B4BE] text-sm mb-3">{pollster.bio}</p>
+                  )}
+                  {isOwnProfile && (
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="text-[#C8AA6E] text-sm hover:text-[#F0E6D2] border-b border-transparent hover:border-[#C8AA6E]"
+                    >
+                      Edit Profile
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
 

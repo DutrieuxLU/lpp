@@ -71,12 +71,15 @@ type Voter struct {
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 	Name      string         `gorm:"size:100;not null" json:"name"`
+	Username  string         `gorm:"size:50" json:"username"`
 	Outlet    string         `gorm:"size:100" json:"outlet"`
 	Email     string         `gorm:"size:255;not null;uniqueIndex" json:"email"`
 	Password  string         `gorm:"size:255" json:"-"`
 	Role      Role           `gorm:"size:20;default:'general'" json:"role"`
 	Region    Region         `gorm:"size:10" json:"region"`
 	IsActive  bool           `gorm:"default:true" json:"isActive"`
+	Bio       string         `gorm:"type:text" json:"bio"`
+	Photo     string         `gorm:"size:255" json:"photo"`
 }
 
 type Vote struct {

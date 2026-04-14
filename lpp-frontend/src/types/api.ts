@@ -46,10 +46,13 @@ export interface VoteSubmission {
 export interface PollsterProfile {
   id: number;
   name: string;
+  username: string;
   outlet: string;
   region: string;
   role: string;
   isActive: boolean;
+  bio: string;
+  photo: string;
   createdAt: string;
 }
 

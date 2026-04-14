@@ -115,8 +115,9 @@ export default function PollstersPage() {
 }
 
 function PollsterRow({ pollster }: { pollster: PollsterProfile }) {
+  const profileLink = pollster.username ? `/pollster/${pollster.username}` : `/pollster/${pollster.id}`;
   return (
-    <div className="grid grid-cols-12 gap-4 p-3 items-center border-b border-[#1E2328] hover:bg-[#091220]/50">
+    <Link href={profileLink} className="grid grid-cols-12 gap-4 p-3 items-center border-b border-[#1E2328] hover:bg-[#091220]/50">
       <div className="col-span-4 font-medium">{pollster.name}</div>
       <div className="col-span-4 text-[#A8B4BE] text-sm">{pollster.outlet}</div>
       <div className="col-span-2 text-sm text-[#A8B4BE]">{pollster.region}</div>
@@ -131,6 +132,6 @@ function PollsterRow({ pollster }: { pollster: PollsterProfile }) {
           {pollster.isActive ? "Active" : "Inactive"}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
