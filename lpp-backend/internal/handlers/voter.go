@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"strconv"
 
+	"lpp-backend/internal/middleware"
 	"lpp-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func RegisterVoterRoutes(group *gin.RouterGroup, db *gorm.DB) {
+func RegisterVoterRoutes(group *gin.RouterGroup, db *gorm.DB, secret string) {
 	voterHandler := NewVoterHandler(db)
 
 	group.GET("/voters", voterHandler.GetVoters)
@@ -64,6 +65,12 @@ func (h *VoterHandler) GetVoters(c *gin.Context) {
 }
 
 func (h *VoterHandler) UpdateVoter(c *gin.Context) {
+	role := middleware.GetVoterRole(c)
+	if role != string(models.RoleAdmin) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+		return
+	}
+
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid voter ID"})
@@ -101,6 +108,12 @@ func (h *VoterHandler) UpdateVoter(c *gin.Context) {
 }
 
 func (h *VoterHandler) DeleteVoter(c *gin.Context) {
+	role := middleware.GetVoterRole(c)
+	if role != string(models.RoleAdmin) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+		return
+	}
+
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid voter ID"})

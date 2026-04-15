@@ -3,19 +3,23 @@ package handlers
 import (
 	"net/http"
 
+	"lpp-backend/internal/middleware"
 	"lpp-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func RegisterApplicationRoutes(group *gin.RouterGroup, db *gorm.DB) {
+func RegisterApplicationRoutes(group *gin.RouterGroup, db *gorm.DB, secret string) {
 	appHandler := NewApplicationHandler(db)
 
 	group.POST("/applications", appHandler.CreateApplication)
-	group.GET("/applications", appHandler.GetApplications)
-	group.PUT("/applications/:id/approve", appHandler.ApproveApplication)
-	group.PUT("/applications/:id/reject", appHandler.RejectApplication)
+
+	adminGroup := group.Group("")
+	adminGroup.Use(middleware.AuthRequired(secret))
+	adminGroup.GET("/applications", appHandler.GetApplications)
+	adminGroup.PUT("/applications/:id/approve", appHandler.ApproveApplication)
+	adminGroup.PUT("/applications/:id/reject", appHandler.RejectApplication)
 }
 
 type ApplicationHandler struct {
@@ -56,6 +60,12 @@ func (h *ApplicationHandler) CreateApplication(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) GetApplications(c *gin.Context) {
+	role := middleware.GetVoterRole(c)
+	if role != string(models.RoleAdmin) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+		return
+	}
+
 	var apps []models.Application
 	if err := h.db.Where("status = ?", models.ApplicationStatusPending).Find(&apps).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -65,6 +75,12 @@ func (h *ApplicationHandler) GetApplications(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) ApproveApplication(c *gin.Context) {
+	role := middleware.GetVoterRole(c)
+	if role != string(models.RoleAdmin) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+		return
+	}
+
 	id := c.Param("id")
 	var app models.Application
 	if err := h.db.First(&app, id).Error; err != nil {
@@ -93,6 +109,12 @@ func (h *ApplicationHandler) ApproveApplication(c *gin.Context) {
 }
 
 func (h *ApplicationHandler) RejectApplication(c *gin.Context) {
+	role := middleware.GetVoterRole(c)
+	if role != string(models.RoleAdmin) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+		return
+	}
+
 	id := c.Param("id")
 	var app models.Application
 	if err := h.db.First(&app, id).Error; err != nil {

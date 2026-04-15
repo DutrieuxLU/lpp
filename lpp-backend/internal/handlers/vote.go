@@ -5,17 +5,22 @@ import (
 	"net/http"
 	"time"
 
+	"lpp-backend/internal/middleware"
 	"lpp-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func RegisterVoteRoutes(group *gin.RouterGroup, db *gorm.DB) {
+func RegisterVoteRoutes(group *gin.RouterGroup, db *gorm.DB, secret string) {
 	voteHandler := NewVoteHandler(db)
 
-	group.GET("/votes/week/:weekId", voteHandler.GetVotesByWeek)
-	group.POST("/votes", voteHandler.SubmitVote)
+	publicGroup := group.Group("")
+	publicGroup.GET("/votes/week/:weekId", voteHandler.GetVotesByWeek)
+
+	protected := group.Group("")
+	protected.Use(middleware.AuthRequired(secret))
+	protected.POST("/votes", voteHandler.SubmitVote)
 }
 
 type VoteHandler struct {
@@ -69,9 +74,14 @@ func (h *VoteHandler) GetVotesByWeek(c *gin.Context) {
 }
 
 func (h *VoteHandler) SubmitVote(c *gin.Context) {
+	voterID := middleware.GetVoterID(c)
+	if voterID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+
 	var req struct {
 		PollWeekID uint          `json:"pollWeekId" binding:"required"`
-		VoterID    uint          `json:"voterId" binding:"required"`
 		Rankings   []TeamRanking `json:"rankings" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,7 +91,7 @@ func (h *VoteHandler) SubmitVote(c *gin.Context) {
 
 	// Check if voter already voted for this poll week
 	var existingVote models.Vote
-	if err := h.db.Where("poll_week_id = ? AND voter_id = ?", req.PollWeekID, req.VoterID).First(&existingVote).Error; err == nil {
+	if err := h.db.Where("poll_week_id = ? AND voter_id = ?", req.PollWeekID, voterID).First(&existingVote).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "You have already voted for this week. Please contact an admin to modify your vote."})
 		return
 	}
@@ -124,7 +134,7 @@ func (h *VoteHandler) SubmitVote(c *gin.Context) {
 
 	vote := models.Vote{
 		PollWeekID:  req.PollWeekID,
-		VoterID:     req.VoterID,
+		VoterID:     voterID,
 		Rankings:    string(rankingsJSON),
 		SubmittedAt: time.Now(),
 	}

@@ -3,19 +3,23 @@ package handlers
 import (
 	"net/http"
 
+	"lpp-backend/internal/middleware"
 	"lpp-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func RegisterWeekRoutes(group *gin.RouterGroup, db *gorm.DB) {
+func RegisterWeekRoutes(group *gin.RouterGroup, db *gorm.DB, secret string) {
 	weekHandler := NewWeekHandler(db)
 
 	group.GET("/weeks", weekHandler.GetWeeks)
 	group.GET("/weeks/:id", weekHandler.GetWeek)
-	group.POST("/weeks", weekHandler.CreateWeek)
-	group.PUT("/weeks/:id", weekHandler.UpdateWeek)
+
+	adminGroup := group.Group("")
+	adminGroup.Use(middleware.AuthRequired(secret))
+	adminGroup.POST("/weeks", weekHandler.CreateWeek)
+	adminGroup.PUT("/weeks/:id", weekHandler.UpdateWeek)
 }
 
 type WeekHandler struct {

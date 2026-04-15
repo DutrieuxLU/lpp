@@ -72,18 +72,18 @@ func Run(cfg *config.Config) error {
 
 	api := router.Group("/api/v1")
 	{
-		handlers.RegisterRankingRoutes(api, database)
-		handlers.RegisterTeamRoutes(api, database)
-		handlers.RegisterWeekRoutes(api, database)
-		handlers.RegisterVoteRoutes(api, database)
+		handlers.RegisterRankingRoutes(api, database, cfg.JWTSecret)
+		handlers.RegisterTeamRoutes(api, database, cfg.JWTSecret)
+		handlers.RegisterWeekRoutes(api, database, cfg.JWTSecret)
+		handlers.RegisterVoteRoutes(api, database, cfg.JWTSecret)
 
 		authGroup := api.Group("/auth")
 		authGroup.Use(middleware.RateLimit(5, time.Minute))
 		handlers.RegisterAuthRoutes(authGroup, database, cfg)
 
-		handlers.RegisterApplicationRoutes(api, database)
-		handlers.RegisterPollsterRoutes(api, database)
-		handlers.RegisterVoterRoutes(api, database)
+		handlers.RegisterApplicationRoutes(api, database, cfg.JWTSecret)
+		handlers.RegisterPollsterRoutes(api, database, cfg.JWTSecret)
+		handlers.RegisterVoterRoutes(api, database, cfg.JWTSecret)
 	}
 
 	log.Printf("Server starting on port %s", cfg.Port)

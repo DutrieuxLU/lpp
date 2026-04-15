@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"lpp-backend/internal/middleware"
 	"lpp-backend/internal/models"
 	"lpp-backend/internal/services"
 
@@ -10,15 +11,18 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterTeamRoutes(group *gin.RouterGroup, db *gorm.DB) {
+func RegisterTeamRoutes(group *gin.RouterGroup, db *gorm.DB, secret string) {
 	teamHandler := NewTeamHandler(db)
 
 	group.GET("/teams", teamHandler.GetTeams)
 	group.GET("/teams/:id", teamHandler.GetTeam)
-	group.POST("/teams", teamHandler.CreateTeam)
-	group.PUT("/teams/:id", teamHandler.UpdateTeam)
-	group.DELETE("/teams/:id", teamHandler.DeleteTeam)
-	group.POST("/teams/sync", teamHandler.SyncTeams)
+
+	adminGroup := group.Group("")
+	adminGroup.Use(middleware.AuthRequired(secret))
+	adminGroup.POST("/teams", teamHandler.CreateTeam)
+	adminGroup.PUT("/teams/:id", teamHandler.UpdateTeam)
+	adminGroup.DELETE("/teams/:id", teamHandler.DeleteTeam)
+	adminGroup.POST("/teams/sync", teamHandler.SyncTeams)
 }
 
 type TeamHandler struct {

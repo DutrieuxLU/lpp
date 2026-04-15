@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"lpp-backend/internal/middleware"
 	"lpp-backend/internal/models"
 	"lpp-backend/internal/services"
 
@@ -10,13 +11,16 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterRankingRoutes(group *gin.RouterGroup, db *gorm.DB) {
+func RegisterRankingRoutes(group *gin.RouterGroup, db *gorm.DB, secret string) {
 	rankingHandler := NewRankingHandler(db)
 
 	group.GET("/rankings/current", rankingHandler.GetCurrentRankings)
 	group.GET("/rankings/week/:weekId", rankingHandler.GetWeekRankings)
-	group.POST("/rankings/calculate", rankingHandler.CalculateRankings)
-	group.DELETE("/rankings/week/:weekId", rankingHandler.ClearRankings)
+
+	adminGroup := group.Group("")
+	adminGroup.Use(middleware.AuthRequired(secret))
+	adminGroup.POST("/rankings/calculate", rankingHandler.CalculateRankings)
+	adminGroup.DELETE("/rankings/week/:weekId", rankingHandler.ClearRankings)
 }
 
 type RankingHandler struct {
@@ -153,6 +157,12 @@ func (h *RankingHandler) GetWeekRankings(c *gin.Context) {
 }
 
 func (h *RankingHandler) CalculateRankings(c *gin.Context) {
+	role := middleware.GetVoterRole(c)
+	if role != string(models.RoleAdmin) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+		return
+	}
+
 	var req struct {
 		PollWeekID uint `json:"pollWeekId" binding:"required"`
 	}
@@ -178,6 +188,12 @@ func (h *RankingHandler) CalculateRankings(c *gin.Context) {
 }
 
 func (h *RankingHandler) ClearRankings(c *gin.Context) {
+	role := middleware.GetVoterRole(c)
+	if role != string(models.RoleAdmin) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+		return
+	}
+
 	weekID := c.Param("weekId")
 	var pollWeek models.PollWeek
 	if err := h.db.First(&pollWeek, weekID).Error; err != nil {

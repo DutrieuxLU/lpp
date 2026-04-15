@@ -4,21 +4,24 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 
+	"lpp-backend/internal/middleware"
 	"lpp-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func RegisterPollsterRoutes(group *gin.RouterGroup, db *gorm.DB) {
+func RegisterPollsterRoutes(group *gin.RouterGroup, db *gorm.DB, secret string) {
 	pollsterHandler := NewPollsterHandler(db)
 
 	group.GET("/pollsters", pollsterHandler.ListPollsters)
 	group.GET("/pollsters/:identifier", pollsterHandler.GetPollster)
 	group.GET("/pollsters/:identifier/votes", pollsterHandler.GetPollsterVotes)
-	group.PUT("/pollsters/profile", pollsterHandler.UpdateProfile)
+
+	protected := group.Group("")
+	protected.Use(middleware.AuthRequired(secret))
+	protected.PUT("/pollsters/profile", pollsterHandler.UpdateProfile)
 }
 
 type PollsterHandler struct {
@@ -282,25 +285,9 @@ type UpdateProfileRequest struct {
 }
 
 func (h *PollsterHandler) UpdateProfile(c *gin.Context) {
-	token := c.GetHeader("Authorization")
-	if token == "" {
+	voterID := middleware.GetVoterID(c)
+	if voterID == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization required"})
-		return
-	}
-
-	token = strings.TrimPrefix(token, "Bearer ")
-
-	var voterID uint
-	if strings.HasPrefix(token, "simple-token-") {
-		idStr := strings.TrimPrefix(token, "simple-token-")
-		id, err := strconv.ParseUint(idStr, 10, 32)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			return
-		}
-		voterID = uint(id)
-	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
 		return
 	}
 

@@ -8,20 +8,11 @@ export default function VotePage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [weeks, setWeeks] = useState<PollWeek[]>([]);
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
-  const [voterId, setVoterId] = useState<number>(0);
   const [rankings, setRankings] = useState<TeamRanking[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    const storedVoter = localStorage.getItem("voter");
-    if (storedVoter) {
-      const voter = JSON.parse(storedVoter);
-      setVoterId(voter.id);
-    }
-  }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -84,16 +75,11 @@ export default function VotePage() {
       return;
     }
 
-    if (!voterId) {
-      setMessage({ type: "error", text: "Voter not found. Please log in again." });
-      return;
-    }
-
     setSaving(true);
     setMessage(null);
 
     try {
-      await submitVote(selectedWeek, voterId, rankings);
+      await submitVote(selectedWeek, rankings);
       await calculateRankings(selectedWeek);
       setMessage({ type: "success", text: "Vote submitted and rankings calculated!" });
       setRankings([]);

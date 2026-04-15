@@ -45,12 +45,11 @@ export async function getWeeks(year?: number, split?: string): Promise<PollWeek[
 
 export async function submitVote(
   pollWeekId: number,
-  voterId: number,
   rankings: TeamRanking[]
 ): Promise<void> {
   return fetchAPI("/votes", {
     method: "POST",
-    body: JSON.stringify({ pollWeekId, voterId, rankings }),
+    body: JSON.stringify({ pollWeekId, rankings }),
   });
 }
 
