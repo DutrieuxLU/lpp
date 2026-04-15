@@ -31,15 +31,11 @@ func seedData(db *gorm.DB) {
 	db.Exec("DELETE FROM votes")
 	db.Exec("DELETE FROM poll_weeks")
 	db.Exec("DELETE FROM applications")
+	db.Exec("DELETE FROM teams")
 	db.Exec("DELETE FROM voters")
 
-	var teamCount int64
-	db.Model(&models.Team{}).Count(&teamCount)
-	if teamCount < 10 {
-		log.Println("Syncing teams from external API first...")
-		svc := services.NewTeamSyncService(db)
-		svc.SyncTeams()
-	}
+	svc := services.NewTeamSyncService(db)
+	svc.SyncTeams()
 
 	var teams []models.Team
 	db.Where("logo != '' AND logo IS NOT NULL").Find(&teams)
@@ -127,12 +123,18 @@ func seedData(db *gorm.DB) {
 	}
 	log.Printf("Created admin voter: %s (role: admin)", adminVoter.Email)
 
+	johnPollsterPassword := "pollster123"
+	hashedJohnPassword, err := security.HashPassword(johnPollsterPassword)
+	if err != nil {
+		log.Fatalf("Failed to hash John Pollster password: %v", err)
+	}
+
 	johnPollster := models.Voter{
 		Name:     "John Pollster",
 		Username: "johnpollster",
 		Outlet:   "Esports Weekly",
 		Email:    "john@lpp.com",
-		Password: "pollster123",
+		Password: hashedJohnPassword,
 		Role:     models.RolePollster,
 		Region:   models.RegionLCS,
 		IsActive: true,
